@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafarShare — India's Safest Ride-Sharing Platform</title>
+<meta name="description" content="Share rides across Uttar Pradesh. Verified drivers, real-time tracking, panic button. Lucknow to Kanpur for ₹160.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#0F5C3A;--brand-mid:#1A7D52;--brand-light:#E6F4EE;
+  --accent:#F5A623;--danger:#E24B4A;
+  --dark:#0a1f15;--darker:#061510;
+  --text:#1A1A18;--muted:#6B6860;--hint:#9B9890;
+  --surface:#fff;--bg:#F7F5F0;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--bg);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 5%;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,31,21,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.nav-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-.3px}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-cta{background:var(--brand);color:#fff;padding:9px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;transition:background .2s}
+.nav-cta:hover{background:var(--brand-mid)}
+
+/* HERO */
+.hero{min-height:100vh;background:radial-gradient(ellipse at 20% 50%,#143d26 0%,#0a2419 45%,#061510 100%);display:flex;align-items:center;padding:0 5%;padding-top:68px;overflow:hidden;position:relative}
+.hero-bg-dots{position:absolute;inset:0;background-image:radial-gradient(rgba(26,125,82,0.15) 1px, transparent 1px);background-size:32px 32px;opacity:.6}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(26,125,82,0.2) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.hero-content{max-width:580px;position:relative;z-index:2;animation:fadeUp .8s ease both}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(26,125,82,0.2);border:1px solid rgba(26,125,82,0.4);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#4ade80;margin-bottom:24px;letter-spacing:.05em}
+.hero-eyebrow-dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:pulse 2s ease-in-out infinite}
+h1{font-family:'Syne',sans-serif;font-size:clamp(40px,5vw,64px);font-weight:800;color:#fff;line-height:1.08;letter-spacing:-.5px;margin-bottom:20px}
+h1 span{color:var(--accent)}
+.hero-sub{font-size:18px;color:rgba(255,255,255,0.55);line-height:1.65;margin-bottom:36px;max-width:480px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:48px}
+.btn-primary{background:linear-gradient(135deg,#1A7D52,#0F5C3A);color:#fff;padding:14px 28px;border-radius:12px;font-size:16px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(15,92,58,0.4);transition:transform .2s,box-shadow .2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(15,92,58,0.5)}
+.btn-secondary{background:rgba(255,255,255,0.06);color:#fff;padding:14px 28px;border-radius:12px;font-size:16px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:background .2s}
+.btn-secondary:hover{background:rgba(255,255,255,0.1)}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap}
+.hero-stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;display:block}
+.hero-stat-lbl{font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px}
+.hero-phone{position:absolute;right:5%;bottom:0;width:260px;animation:floatUp 1s .3s ease both}
+.hero-phone-frame{background:linear-gradient(160deg,#143d26,#061510);border-radius:36px;padding:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 24px 64px rgba(0,0,0,0.5)}
+
+/* ROUTE SEARCH BAR */
+.search-section{padding:80px 5%;background:var(--bg)}
+.search-wrap{background:var(--surface);border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(0,0,0,0.08);max-width:800px;margin:0 auto}
+.search-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:700;margin-bottom:20px;text-align:center}
+.search-grid{display:grid;grid-template-columns:1fr 1fr auto auto;gap:12px;align-items:end}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.field input,.field select{width:100%;padding:12px 16px;border-radius:10px;border:1.5px solid rgba(0,0,0,0.08);font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);outline:none;background:#F7F5F0;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--brand);background:#fff}
+.search-btn{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;transition:background .2s}
+.search-btn:hover{background:var(--brand-mid)}
+
+/* FEATURES */
+.features{padding:100px 5%;background:#fff}
+.section-eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:12px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.15;margin-bottom:16px}
+.section-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:480px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:60px}
+.feat-card{background:var(--bg);border-radius:18px;padding:28px;border:1px solid rgba(0,0,0,0.05);transition:transform .2s,box-shadow .2s}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.08)}
+.feat-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:18px}
+.feat-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px}
+.feat-desc{font-size:14px;color:var(--muted);line-height:1.65}
+
+/* HOW IT WORKS */
+.how{padding:100px 5%;background:var(--bg)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-top:60px;position:relative}
+.steps::before{content:'';position:absolute;top:32px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--brand-light),var(--brand),var(--brand-light));opacity:.4}
+.step{text-align:center;position:relative}
+.step-num{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--brand-mid),var(--brand));color:#fff;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 4px 16px rgba(15,92,58,0.3)}
+.step-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* SAFETY */
+.safety{padding:100px 5%;background:linear-gradient(160deg,var(--dark),var(--darker));position:relative;overflow:hidden}
+.safety-glow{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(226,75,74,0.12) 0%,transparent 70%);bottom:-100px;right:-100px}
+.safety-content{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;position:relative;z-index:2}
+.safety-features{display:flex;flex-direction:column;gap:20px;margin-top:32px}
+.safety-item{display:flex;gap:16px;align-items:flex-start;padding:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px}
+.safety-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.safety-item-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:4px}
+.safety-item-desc{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.5}
+.panic-demo{background:rgba(226,75,74,0.08);border:2px solid rgba(226,75,74,0.3);border-radius:24px;padding:32px;text-align:center}
+.panic-demo-btn{width:120px;height:120px;border-radius:60px;background:linear-gradient(135deg,#E24B4A,#b91c1c);margin:0 auto 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(226,75,74,0.4),0 0 80px rgba(226,75,74,0.15);cursor:pointer;transition:transform .2s}
+.panic-demo-btn:hover{transform:scale(1.05)}
+.panic-demo-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:8px}
+.panic-demo-desc{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6}
+
+/* ROUTES */
+.routes{padding:80px 5%;background:#fff}
+.routes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:40px}
+.route-card{background:var(--bg);border-radius:14px;padding:16px 18px;border:1px solid rgba(0,0,0,0.05);transition:all .2s;cursor:pointer;text-decoration:none}
+.route-card:hover{background:var(--brand-light);border-color:rgba(15,92,58,0.2);transform:translateY(-2px)}
+.route-from{font-size:14px;font-weight:600;color:var(--text)}
+.route-arrow{font-size:14px;color:var(--brand);margin:4px 0}
+.route-to{font-size:14px;font-weight:600;color:var(--text)}
+.route-price{font-size:13px;font-weight:700;color:var(--brand);margin-top:8px}
+.route-meta{font-size:11px;color:var(--muted)}
+
+/* TESTIMONIALS */
+.testimonials{padding:100px 5%;background:var(--bg)}
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:50px}
+.testimonial{background:var(--surface);border-radius:18px;padding:24px;border:1px solid rgba(0,0,0,0.05)}
+.testimonial-stars{color:var(--accent);font-size:14px;margin-bottom:12px;letter-spacing:2px}
+.testimonial-text{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:18px;font-style:italic}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.author-av{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.author-name{font-size:14px;font-weight:600;color:var(--text)}
+.author-city{font-size:12px;color:var(--muted)}
+
+/* DRIVER CTA */
+.driver-cta{padding:100px 5%;background:linear-gradient(135deg,var(--dark),#0f3324);text-align:center}
+.driver-cta h2{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;margin-bottom:16px}
+.driver-cta p{font-size:17px;color:rgba(255,255,255,0.5);max-width:500px;margin:0 auto 36px;line-height:1.7}
+.driver-stats-row{display:flex;gap:40px;justify-content:center;margin-bottom:40px;flex-wrap:wrap}
+.dstat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--accent);display:block}
+.dstat-lbl{font-size:13px;color:rgba(255,255,255,0.4)}
+
+/* FOOTER */
+footer{background:#061510;padding:60px 5% 32px;border-top:1px solid rgba(255,255,255,0.04)}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+.footer-brand{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:12px}
+.footer-desc{font-size:13px;color:rgba(255,255,255,0.35);line-height:1.7;max-width:260px}
+.footer-col-title{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{color:rgba(255,255,255,0.45);text-decoration:none;font-size:13px;transition:color .2s}
+.footer-links a:hover{color:#fff}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(255,255,255,0.05);font-size:12px;color:rgba(255,255,255,0.25)}
+.safety-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(26,125,82,0.15);border:1px solid rgba(26,125,82,0.3);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:#4ade80}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes floatUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MOBILE */
+@media(max-width:768px){
+  .hero-phone{display:none}
+  .search-grid{grid-template-columns:1fr 1fr}
+  .search-btn{grid-column:1/-1}
+  .safety-content{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .steps::before{display:none}
+  .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">SafarShare</a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#safety">Safety</a></li>
+    <li><a href="#routes">Routes</a></li>
+    <li><a href="#drive">Drive with us</a></li>
+  </ul>
+  <a href="/app" class="nav-cta">Open App →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-dots"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      Now live across Uttar Pradesh
+    </div>
+    <h1>Travel safer.<br>Pay <span>less.</span><br>Share the road.</h1>
+    <p class="hero-sub">India's most trusted intercity ride-sharing platform. Verified drivers, real-time tracking, and a panic button for every journey.</p>
+    <div class="hero-btns">
+      <a href="/app" class="btn-primary">🚗 Find a Ride</a>
+      <a href="#drive" class="btn-secondary">Become a Driver</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <span class="hero-stat-val">24,800+</span>
+        <span class="hero-stat-lbl">Registered users</span>
+      </div>
+      <div>
+        <span class="hero-stat-val">48,000+</span>
+        <span class="hero-stat-lbl">Rides completed</span>
+      </div>
+      <div>
+        <span class="hero-stat-val">4.6 ★</span>
+        <span class="hero-stat-lbl">Average rating</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<section class="search-section">
+  <div class="search-wrap">
+    <h2 class="search-title">Find your next ride</h2>
+    <div class="search-grid">
+      <div class="field">
+        <label>From</label>
+        <input type="text" placeholder="Lucknow" id="s-from" list="cities">
+      </div>
+      <div class="field">
+        <label>To</label>
+        <input type="text" placeholder="Kanpur" id="s-to" list="cities">
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="s-date">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="search-btn" onclick="searchRide()">Search Rides →</button>
+      </div>
+    </div>
+    <datalist id="cities">
+      <option>Lucknow</option><option>Kanpur</option><option>Varanasi</option>
+      <option>Prayagraj</option><option>Gorakhpur</option><option>Bahraich</option>
+      <option>Agra</option><option>Mathura</option><option>Basti</option>
+    </datalist>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-eyebrow">Why SafarShare</div>
+  <h2 class="section-title">Built for India.<br>Designed for safety.</h2>
+  <p class="section-sub">We solved the problems that make ride-sharing unreliable — cancellations, unverified drivers, and zero safety features.</p>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#E6F4EE">🛡️</div>
+      <div class="feat-title">Verified Drivers</div>
+      <p class="feat-desc">Every driver is verified with Aadhaar, driving license, and vehicle RC before being approved. Admin reviews each application manually.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#FEF3DC">🆘</div>
+      <div class="feat-title">Panic Button</div>
+      <p class="feat-desc">One tap sends your GPS location to emergency contacts, our safety team, and optionally the nearest police station.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#E6F1FB">📍</div>
+      <div class="feat-title">Live Tracking</div>
+      <p class="feat-desc">Real-time GPS tracking throughout your journey. Share your live location with family so they always know where you are.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#FCEBEB">❌</div>
+      <div class="feat-title">Anti-Cancellation</div>
+      <p class="feat-desc">Drivers who cancel within 12 hours face rating penalties and temporary suspensions. We take reliability seriously.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#E6F4EE">💰</div>
+      <div class="feat-title">Save Up to 70%</div>
+      <p class="feat-desc">Split fuel costs with co-travellers. Lucknow to Kanpur for ₹160 instead of ₹600 by taxi. Same journey, fraction of the cost.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#FEF3DC">💬</div>
+      <div class="feat-title">In-App Chat</div>
+      <p class="feat-desc">Message your driver directly after booking. Share pickup details, locations, and coordinate without sharing personal numbers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how-it-works">
+  <div style="text-align:center;max-width:500px;margin:0 auto">
+    <div class="section-eyebrow">Simple process</div>
+    <h2 class="section-title">Book a ride in under a minute</h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Search your route</div>
+      <p class="step-desc">Enter your from and to cities, pick a date, and see available rides instantly.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Choose a driver</div>
+      <p class="step-desc">Compare driver ratings, car type, price, and preferences. Pick the one that suits you.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Pay securely</div>
+      <p class="step-desc">Pay via UPI, card, or wallet. Money is held safely until your trip is complete.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Travel safely</div>
+      <p class="step-desc">Live tracking, in-app chat, and the panic button keep you safe the entire journey.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SAFETY -->
+<section class="safety" id="safety">
+  <div class="safety-glow"></div>
+  <div class="safety-content">
+    <div>
+      <div class="section-eyebrow" style="color:#4ade80">Safety first</div>
+      <h2 class="section-title" style="color:#fff">Every feature built<br>around your safety</h2>
+      <p style="color:rgba(255,255,255,0.5);font-size:15px;line-height:1.7;margin-bottom:8px">We didn't add safety as an afterthought. It is the core reason SafarShare exists.</p>
+      <div class="safety-features">
+        <div class="safety-item">
+          <div class="safety-icon" style="background:rgba(26,125,82,0.2)">✓</div>
+          <div>
+            <div class="safety-item-title">Aadhaar-verified drivers</div>
+            <div class="safety-item-desc">Every driver's identity verified against Aadhaar before first ride</div>
+          </div>
+        </div>
+        <div class="safety-item">
+          <div class="safety-icon" style="background:rgba(59,130,246,0.2)">📍</div>
+          <div>
+            <div class="safety-item-title">Real-time GPS sharing</div>
+            <div class="safety-item-desc">Share live location with up to 3 emergency contacts during the ride</div>
+          </div>
+        </div>
+        <div class="safety-item">
+          <div class="safety-icon" style="background:rgba(245,166,35,0.2)">⭐</div>
+          <div>
+            <div class="safety-item-title">Two-way rating system</div>
+            <div class="safety-item-desc">Passengers and drivers rate each other. Low-rated users are removed</div>
+          </div>
+        </div>
+        <div class="safety-item">
+          <div class="safety-icon" style="background:rgba(226,75,74,0.2)">🚨</div>
+          <div>
+            <div class="safety-item-title">24/7 safety team</div>
+            <div class="safety-item-desc">Admin team monitors all active rides and responds to panic alerts within minutes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="panic-demo">
+        <div class="panic-demo-btn">
+          <span style="font-size:40px">🆘</span>
+          <span style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);margin-top:4px;letter-spacing:.08em">HOLD 3s</span>
+        </div>
+        <div class="panic-demo-title">Panic Button</div>
+        <p class="panic-demo-desc">Hold for 3 seconds during any emergency. Instantly sends your GPS location to your emergency contacts, SafarShare safety team, and optionally dials 112.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;text-align:left">
+          <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5)">📍 GPS location → Emergency contacts via SMS</div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5)">👮 SafarShare safety admin notified instantly</div>
+          <div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5)">📞 Option to call 112 directly from the app</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POPULAR ROUTES -->
+<section class="routes" id="routes">
+  <div class="section-eyebrow">Intercity travel</div>
+  <h2 class="section-title">Popular routes in UP</h2>
+  <div class="routes-grid">
+    <a href="/app?from=Lucknow&to=Kanpur" class="route-card">
+      <div class="route-from">Lucknow</div>
+      <div class="route-arrow">↓</div>
+      <div class="route-to">Kanpur</div>
+      <div class="route-price">From ₹160/seat</div>
+      <div class="route-meta">85 km · ~2 hrs</div>
+    </a>
+    <a href="/app?from=Varanasi&to=Prayagraj" class="route-card">
+      <div class="route-from">Varanasi</div>
+      <div class="route-arrow">↓</div>
+      <div class="route-to">Prayagraj</div>
+      <div class="route-price">From ₹180/seat</div>
+      <div class="route-meta">120 km · ~2.5 hrs</div>
+    </a>
+    <a href="/app?from=Gorakhpur&to=Lucknow" class="route-card">
+      <div class="route-from">Gorakhpur</div>
+      <div class="route-arrow">↓</div>
+      <div class="route-to">Lucknow</div>
+      <div class="route-price">From ₹380/seat</div>
+      <div class="route-meta">273 km · ~4.5 hrs</div>
+    </a>
+    <a href="/app?from=Agra&to=Mathura" class="route-card">
+      <div class="route-from">Agra</div>
+      <div class="route-arrow">↓</div>
+      <div class="route-to">Mathura</div>
+      <div class="route-price">From ₹100/seat</div>
+      <div class="route-meta">57 km · ~1 hr</div>
+    </a>
+    <a href="/app?from=Bahraich&to=Lucknow" class="route-card">
+      <div class="route-from">Bahraich</div>
+      <div class="route-arrow">↓</div>
+      <div class="route-to">Lucknow</div>
+      <div class="route-price">From ₹220/seat</div>
+      <div class="route-meta">133 km · ~2.5 hrs</div>
+    </a>
+    <a href="/app?from=Kanpur&to=Prayagraj" class="route-card">
+      <div class="route-from">Kanpur</div>
+      <div class="route-arrow">↓</div>
+      <div class="route-to">Prayagraj</div>
+      <div class="route-price">From ₹200/seat</div>
+      <div class="route-meta">195 km · ~3 hrs</div>
+    </a>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div style="text-align:center;max-width:500px;margin:0 auto">
+    <div class="section-eyebrow">Real experiences</div>
+    <h2 class="section-title">Loved by travellers<br>across UP</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"I travel Lucknow to Kanpur every week for work. SafarShare saves me ₹800 a month and the panic button gives my parents peace of mind."</p>
+      <div class="testimonial-author">
+        <div class="author-av" style="background:#1A7D52">PS</div>
+        <div>
+          <div class="author-name">Priya Sharma</div>
+          <div class="author-city">Lucknow → Kanpur</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"As a driver I earn ₹8,000-10,000 extra every month just by offering rides I was already taking. The app handles everything."</p>
+      <div class="testimonial-author">
+        <div class="author-av" style="background:#7C3AED">RK</div>
+        <div>
+          <div class="author-name">Rohit Kumar</div>
+          <div class="author-city">Driver · Lucknow</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <p class="testimonial-text">"The driver was verified and punctual. Real-time tracking meant my family knew exactly where I was. Much safer than catching a random cab."</p>
+      <div class="testimonial-author">
+        <div class="author-av" style="background:#C05528">AM</div>
+        <div>
+          <div class="author-name">Ananya Mishra</div>
+          <div class="author-city">Varanasi → Prayagraj</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DRIVER CTA -->
+<section class="driver-cta" id="drive">
+  <div class="section-eyebrow" style="color:#F5A623;text-align:center">For drivers</div>
+  <h2>Turn your car into income</h2>
+  <p>Earn ₹8,000–15,000 per month by sharing rides you're already taking. SafarShare handles bookings, payments, and passengers.</p>
+  <div class="driver-stats-row">
+    <div><span class="dstat-val">₹12,400</span><span class="dstat-lbl">Avg monthly earnings</span></div>
+    <div><span class="dstat-val">1,200+</span><span class="dstat-lbl">Active drivers</span></div>
+    <div><span class="dstat-val">3 days</span><span class="dstat-lbl">Avg approval time</span></div>
+  </div>
+  <a href="/app/register?role=driver" class="btn-primary" style="font-size:16px;padding:14px 32px">
+    🚗 Register as Driver →
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">SafarShare</div>
+      <p class="footer-desc">India's safest intercity ride-sharing platform. Starting in Uttar Pradesh, expanding across India.</p>
+      <div style="margin-top:16px"><span class="safety-badge">🛡️ Safety first platform</span></div>
+    </div>
+    <div>
+      <div class="footer-col-title">Product</div>
+      <ul class="footer-links">
+        <li><a href="/app">Book a Ride</a></li>
+        <li><a href="/app/register?role=driver">Drive with Us</a></li>
+        <li><a href="#safety">Safety Features</a></li>
+        <li><a href="#routes">Popular Routes</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="/about">About Us</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/careers">Careers</a></li>
+        <li><a href="/press">Press</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Support</div>
+      <ul class="footer-links">
+        <li><a href="/help">Help Centre</a></li>
+        <li><a href="/safety">Safety Guide</a></li>
+        <li><a href="mailto:support@safarshare.in">Contact Us</a></li>
+        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="/privacy">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 SafarShare Technologies Pvt. Ltd. · Lucknow, UP</span>
+    <span>Made with ❤️ in India</span>
+  </div>
+</footer>
+
+<script>
+// Set tomorrow as default date
+document.getElementById('s-date').value = new Date(Date.now()+86400000).toISOString().split('T')[0];
+
+function searchRide() {
+  const from = document.getElementById('s-from').value;
+  const to = document.getElementById('s-to').value;
+  const date = document.getElementById('s-date').value;
+  if(!from || !to) { alert('Please enter from and to cities'); return; }
+  window.location.href = `/app?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${date}`;
+}
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Animate elements on scroll
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) { e.target.style.animation='fadeUp .6s ease both'; e.target.style.opacity='1'; }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.feat-card,.step,.route-card,.testimonial,.safety-item').forEach(el => {
+  el.style.opacity='0'; observer.observe(el);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.pem
+*.json
+!package.json
+!package-lock.json
+!railway.json

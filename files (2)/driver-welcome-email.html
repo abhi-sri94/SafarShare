@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to SafarShare — Your Driver Account is Approved!</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F2F0EB;color:#1A1A18}
+  .wrapper{max-width:600px;margin:0 auto;padding:32px 16px}
+  .card{background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+  /* Header */
+  .header{background:linear-gradient(160deg,#0d3322,#0a2419);padding:40px 36px;text-align:center}
+  .logo{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.3px;margin-bottom:24px}
+  .check-icon{width:72px;height:72px;background:linear-gradient(135deg,#1A7D52,#0F5C3A);border-radius:22px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:18px;box-shadow:0 8px 24px rgba(15,92,58,0.4)}
+  .header h1{font-size:26px;font-weight:800;color:#fff;margin-bottom:8px;letter-spacing:-.3px}
+  .header p{font-size:15px;color:rgba(255,255,255,0.5);line-height:1.6}
+  /* Body */
+  .body{padding:36px}
+  .greeting{font-size:16px;color:#6B6860;margin-bottom:24px;line-height:1.6}
+  /* Driver ID Card */
+  .id-card{background:#F2F0EB;border-radius:16px;padding:20px;margin-bottom:28px;border:1px solid rgba(0,0,0,0.06)}
+  .id-card-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9B9890;margin-bottom:14px}
+  .id-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);font-size:14px}
+  .id-row:last-child{border-bottom:none}
+  .id-label{color:#6B6860}
+  .id-val{font-weight:600;color:#1A1A18}
+  /* Stats */
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:28px}
+  .stat{background:#F2F0EB;border-radius:14px;padding:16px;text-align:center;border:1px solid rgba(0,0,0,0.06)}
+  .stat-val{font-size:22px;font-weight:800;color:#0F5C3A;display:block;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+  .stat-lbl{font-size:11px;color:#9B9890;margin-top:4px;line-height:1.4}
+  /* Steps */
+  .steps-title{font-size:16px;font-weight:700;margin-bottom:16px;color:#1A1A18}
+  .step{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+  .step-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#1A7D52,#0F5C3A);color:#fff;font-size:14px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .step-content{flex:1}
+  .step-title{font-size:14px;font-weight:600;color:#1A1A18;margin-bottom:2px}
+  .step-desc{font-size:13px;color:#6B6860;line-height:1.5}
+  /* CTA Button */
+  .cta-wrap{text-align:center;margin:28px 0}
+  .cta-btn{display:inline-block;background:linear-gradient(135deg,#1A7D52,#0F5C3A);color:#fff;text-decoration:none;padding:15px 40px;border-radius:14px;font-size:16px;font-weight:700;box-shadow:0 4px 16px rgba(15,92,58,0.35)}
+  /* Earnings */
+  .earnings-card{background:linear-gradient(135deg,#0d3322,#0a2419);border-radius:16px;padding:22px;margin-bottom:28px;text-align:center}
+  .ec-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px}
+  .ec-amount{font-size:36px;font-weight:800;color:#F5A623}
+  .ec-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px}
+  .ec-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px}
+  .ec-item{background:rgba(255,255,255,0.05);border-radius:10px;padding:10px;text-align:center}
+  .ec-item-val{font-size:15px;font-weight:700;color:#fff;display:block}
+  .ec-item-lbl{font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px}
+  /* Safety */
+  .safety-list{margin-bottom:28px}
+  .safety-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.05)}
+  .safety-item:last-child{border-bottom:none}
+  .si-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;margin-top:1px}
+  .si-title{font-size:14px;font-weight:600;color:#1A1A18;margin-bottom:2px}
+  .si-desc{font-size:12px;color:#9B9890;line-height:1.5}
+  /* Support */
+  .support-box{background:#F2F0EB;border-radius:14px;padding:18px;margin-bottom:24px;text-align:center;border:1px solid rgba(0,0,0,0.06)}
+  .support-box p{font-size:14px;color:#6B6860;margin-bottom:10px;line-height:1.6}
+  .support-links{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .support-link{font-size:13px;font-weight:600;color:#0F5C3A;text-decoration:none;padding:7px 14px;background:#E6F4EE;border-radius:8px}
+  /* Footer */
+  .footer{padding:24px 36px;text-align:center;border-top:1px solid rgba(0,0,0,0.06)}
+  .footer p{font-size:12px;color:#9B9890;line-height:1.7}
+  .footer a{color:#0F5C3A;text-decoration:none}
+  .badge{display:inline-flex;align-items:center;gap:5px;background:#E6F4EE;border:1px solid rgba(15,92,58,0.2);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#0F5C3A;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="card">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">SafarShare</div>
+      <div class="check-icon">✓</div>
+      <h1>You're Approved! 🎉</h1>
+      <p>Your SafarShare driver account is active.<br>Start earning from your very next trip.</p>
+    </div>
+
+    <!-- Body -->
+    <div class="body">
+      <p class="greeting">
+        Hi <strong>{{DRIVER_FIRST_NAME}}</strong>, 👋<br><br>
+        Congratulations! Our verification team has reviewed your documents and approved your driver account. 
+        You can now post rides and start earning on SafarShare.
+      </p>
+
+      <!-- Driver ID Card -->
+      <div class="id-card">
+        <div class="id-card-title">Your Driver Details</div>
+        <div class="id-row"><span class="id-label">Driver ID</span><span class="id-val">{{DRIVER_ID}}</span></div>
+        <div class="id-row"><span class="id-label">Name</span><span class="id-val">{{DRIVER_FULL_NAME}}</span></div>
+        <div class="id-row"><span class="id-label">Vehicle</span><span class="id-val">{{VEHICLE_MODEL}} · {{VEHICLE_NUMBER}}</span></div>
+        <div class="id-row"><span class="id-label">City</span><span class="id-val">{{DRIVER_CITY}}</span></div>
+        <div class="id-row"><span class="id-label">Status</span><span class="id-val" style="color:#0F5C3A">✓ Verified Driver</span></div>
+        <div class="id-row"><span class="id-label">Commission Rate</span><span class="id-val">13% per ride</span></div>
+      </div>
+
+      <!-- Earnings potential -->
+      <div class="earnings-card">
+        <div class="ec-label">Your Earning Potential</div>
+        <div class="ec-amount">₹12,400/month</div>
+        <div class="ec-sub">Based on 3 rides/week · {{DRIVER_CITY}} region</div>
+        <div class="ec-grid">
+          <div class="ec-item"><span class="ec-item-val">12</span><span class="ec-item-lbl">Rides/month</span></div>
+          <div class="ec-item"><span class="ec-item-val">₹1,280</span><span class="ec-item-lbl">Per ride avg</span></div>
+          <div class="ec-item"><span class="ec-item-val">87%</span><span class="ec-item-lbl">You keep</span></div>
+        </div>
+      </div>
+
+      <!-- Get started steps -->
+      <div class="steps-title">Get started in 3 steps</div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Open the SafarShare app</div>
+          <div class="step-desc">Log in with your registered phone number. Your driver account is already active.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Switch to Driver Mode</div>
+          <div class="step-desc">Go to your Profile → tap "Switch to Driver". You'll see the driver dashboard.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Post your first ride</div>
+          <div class="step-desc">Tap "+ Post Ride", enter your route, date, and price per seat. Your ride will be visible to passengers immediately.</div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-wrap">
+        <a href="https://app.safarshare.in" class="cta-btn">Open SafarShare App →</a>
+      </div>
+
+      <!-- Safety reminders -->
+      <div class="steps-title">Safety reminders</div>
+      <div class="safety-list">
+        <div class="safety-item">
+          <span class="si-icon">🪪</span>
+          <div><div class="si-title">Verify passenger identity</div><div class="si-desc">Always confirm the passenger's name matches their booking before starting the ride</div></div>
+        </div>
+        <div class="safety-item">
+          <span class="si-icon">📱</span>
+          <div><div class="si-title">Keep the app running</div><div class="si-desc">During active rides, keep SafarShare open so your GPS location is shared with passengers</div></div>
+        </div>
+        <div class="safety-item">
+          <span class="si-icon">❌</span>
+          <div><div class="si-title">Avoid last-minute cancellations</div><div class="si-desc">Cancelling within 12 hours of departure affects your rating and may lead to temporary suspension</div></div>
+        </div>
+        <div class="safety-item">
+          <span class="si-icon">💬</span>
+          <div><div class="si-title">Use in-app chat only</div><div class="si-desc">Never share your personal phone number. All communication should happen through SafarShare chat</div></div>
+        </div>
+      </div>
+
+      <!-- Platform commission note -->
+      <div style="background:#FEF3DC;border-radius:14px;padding:16px;margin-bottom:24px;border:1px solid rgba(245,166,35,0.25)">
+        <div style="font-size:14px;font-weight:600;color:#7a4e00;margin-bottom:6px">💰 How payouts work</div>
+        <div style="font-size:13px;color:#7a4e00;line-height:1.65">
+          When a passenger pays for your ride, SafarShare holds the money securely. Once you complete the ride, 
+          <strong>87% of the fare</strong> is transferred to your UPI ID (<strong>{{DRIVER_UPI}}</strong>) 
+          within 24 hours. The 13% platform fee covers insurance, support, and payment processing.
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div class="support-box">
+        <p>Have questions? Our driver support team is here to help.</p>
+        <div class="support-links">
+          <a href="tel:18001234567" class="support-link">📞 1800-123-4567</a>
+          <a href="mailto:drivers@safarshare.in" class="support-link">📧 Email Support</a>
+          <a href="https://safarshare.in/help/drivers" class="support-link">📖 Driver Guide</a>
+        </div>
+      </div>
+
+      <p style="font-size:14px;color:#6B6860;line-height:1.7">
+        We're excited to have you on the SafarShare team. Drive safely, be punctual, and treat every passenger the way you'd want to be treated. 
+        The best drivers on our platform consistently earn 5-star ratings and get more bookings as a result.
+      </p>
+      <br>
+      <p style="font-size:14px;color:#6B6860">
+        Happy driving,<br>
+        <strong style="color:#0F5C3A">The SafarShare Team</strong>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="badge">🛡️ SafarShare — India's safest ride-sharing platform</div>
+      <p style="margin-top:16px">
+        SafarShare Technologies Pvt. Ltd.<br>
+        Lucknow, Uttar Pradesh, India<br><br>
+        <a href="https://safarshare.in/privacy">Privacy Policy</a> · 
+        <a href="https://safarshare.in/terms">Terms of Service</a> · 
+        <a href="https://safarshare.in/help">Help Centre</a>
+      </p>
+      <p style="margin-top:12px;font-size:11px;color:#c0bdb5">
+        You received this email because you registered as a driver on SafarShare.<br>
+        If you did not register, please <a href="mailto:support@safarshare.in">contact us immediately</a>.
+      </p>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

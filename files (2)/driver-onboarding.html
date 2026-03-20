@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SafarShare — Become a Driver</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#0F5C3A;--brand-mid:#1A7D52;--brand-light:#E6F4EE;--brand-glow:rgba(15,92,58,0.15);
+  --driver:#7C3AED;--driver-mid:#8B5CF6;--driver-light:#EDE9FE;--driver-glow:rgba(124,58,237,0.15);
+  --accent:#F5A623;--accent-light:#FEF3DC;
+  --danger:#E24B4A;--danger-light:#FCEBEB;
+  --surface:#fff;--bg:#F2F0EB;--bg2:#E8E5DE;
+  --text:#1A1A18;--muted:#6B6860;--hint:#9B9890;
+  --border:rgba(0,0,0,0.08);
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md:0 4px 20px rgba(0,0,0,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#1a1a18}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text)}
+
+/* Phone shell */
+#app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 30% 20%,#1a0a3a 0%,#0d0520 60%,#050208 100%)}
+.phone{width:390px;height:844px;background:var(--bg);border-radius:44px;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 30px 80px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.12)}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:126px;height:34px;background:#0d0520;border-radius:0 0 20px 20px;z-index:100}
+
+/* Screen system */
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;transform:translateX(28px)}
+.screen::-webkit-scrollbar{display:none}
+.screen.active{opacity:1;pointer-events:all;transform:translateX(0)}
+.screen.out{transform:translateX(-28px);opacity:0}
+
+/* ── WELCOME SCREEN ── */
+#s-welcome{background:linear-gradient(160deg,#1a0a3a 0%,#0d0520 50%,#050208 100%);display:flex;flex-direction:column;padding:54px 28px 40px}
+.w-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:40px;letter-spacing:-.3px}
+.w-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.4);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:#a78bfa;margin-bottom:22px;width:fit-content}
+.w-pulse{width:6px;height:6px;background:#a78bfa;border-radius:50%;animation:pulse 2s ease-in-out infinite}
+.w-title{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:#fff;line-height:1.08;letter-spacing:-.5px;margin-bottom:14px}
+.w-title span{color:var(--accent)}
+.w-sub{font-size:15px;color:rgba(255,255,255,0.45);line-height:1.65;margin-bottom:36px}
+.earn-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:36px}
+.earn-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px;text-align:center}
+.earn-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent);display:block}
+.earn-lbl{font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px;line-height:1.4}
+.w-cta{width:100%;padding:15px;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;font-size:16px;font-weight:700;border:none;border-radius:16px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 20px rgba(124,58,237,0.4);margin-bottom:12px;transition:transform .15s,box-shadow .15s}
+.w-cta:active{transform:scale(.97)}
+.w-login{text-align:center;font-size:14px;color:rgba(255,255,255,0.4)}
+.w-login span{color:#a78bfa;font-weight:600;cursor:pointer}
+.requirements{margin-top:28px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.07)}
+.req-title{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px}
+.req-item{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;color:rgba(255,255,255,0.5)}
+.req-icon{font-size:16px;width:20px;text-align:center}
+
+/* ── PROGRESS BAR (shared) ── */
+.progress-header{padding:54px 24px 20px;background:linear-gradient(180deg,#1a0a3a,#0d0520);border-radius:0 0 28px 28px}
+.ph-back{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;transition:background .15s;border:none}
+.ph-back:active{background:rgba(255,255,255,0.15)}
+.ph-step{font-size:12px;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:6px;letter-spacing:.04em}
+.ph-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.ph-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:16px}
+.progress-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#7C3AED,#8B5CF6);border-radius:2px;transition:width .5s ease}
+
+/* ── FORM BODY ── */
+.form-body{padding:20px 24px 100px}
+.field{margin-bottom:16px}
+.field-label{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.field-required{color:var(--danger);font-size:14px}
+.field-input{width:100%;padding:13px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:13px;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
+.field-input:focus{border-color:var(--driver);box-shadow:0 0 0 4px var(--driver-glow)}
+.field-input::placeholder{color:var(--hint)}
+.field-hint{font-size:11px;color:var(--hint);margin-top:5px;line-height:1.4}
+.field-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── DOCUMENT UPLOAD ── */
+.doc-upload{display:flex;flex-direction:column;gap:14px}
+.doc-item{background:var(--surface);border-radius:16px;padding:16px;border:1.5px dashed var(--border);cursor:pointer;transition:all .2s;position:relative}
+.doc-item.uploaded{border-style:solid;border-color:var(--brand);background:var(--brand-light)}
+.doc-item.uploaded .doc-upload-icon{background:var(--brand-light);color:var(--brand)}
+.doc-item:active{transform:scale(.99)}
+.doc-header{display:flex;align-items:center;gap:12px}
+.doc-upload-icon{width:42px;height:42px;border-radius:12px;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all .2s}
+.doc-title{font-size:14px;font-weight:600;color:var(--text)}
+.doc-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.doc-status{margin-left:auto;font-size:11px;font-weight:600}
+.doc-status.pending{color:var(--hint)}
+.doc-status.done{color:var(--brand)}
+.doc-input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+.doc-preview{margin-top:10px;border-radius:8px;overflow:hidden;display:none}
+.doc-preview img{width:100%;max-height:120px;object-fit:cover;border-radius:8px}
+.doc-number-field{margin-top:10px;display:none}
+
+/* ── VEHICLE DETAILS ── */
+.vehicle-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.vehicle-type-card{padding:14px;border-radius:14px;border:2px solid var(--border);background:var(--surface);cursor:pointer;text-align:center;transition:all .2s}
+.vehicle-type-card.selected{border-color:var(--driver);background:var(--driver-light)}
+.vehicle-type-emoji{font-size:28px;display:block;margin-bottom:6px}
+.vehicle-type-name{font-size:13px;font-weight:600;color:var(--text)}
+.vehicle-type-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.vehicle-type-card.selected .vehicle-type-name{color:var(--driver)}
+
+/* ── PREFERENCES ── */
+.pref-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border)}
+.pref-row:last-child{border-bottom:none}
+.pref-left{display:flex;align-items:center;gap:10px}
+.pref-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pref-name{font-size:14px;font-weight:500}
+.pref-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.toggle{width:44px;height:24px;border-radius:12px;background:var(--border);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--driver)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:10px;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
+.toggle.on::after{transform:translateX(20px)}
+
+/* ── BANK DETAILS ── */
+.upi-verify{display:flex;gap:10px;align-items:flex-end}
+.verify-btn{padding:13px 16px;background:var(--driver-light);color:var(--driver);border:1.5px solid rgba(124,58,237,0.2);border-radius:13px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;transition:background .15s}
+.verify-btn:active{background:rgba(124,58,237,0.15)}
+.bank-info{background:var(--bg);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);line-height:1.6;border:1px solid var(--border)}
+
+/* ── CHECKLIST SCREEN ── */
+#s-checklist{background:var(--bg)}
+.checklist-header{background:linear-gradient(180deg,#1a0a3a,#0d0520);padding:54px 24px 28px;border-radius:0 0 28px 28px}
+.ch-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:6px}
+.ch-sub{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:16px}
+.ch-progress-wrap{background:rgba(255,255,255,0.06);border-radius:12px;padding:14px;display:flex;align-items:center;gap:14px}
+.ch-pct{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;min-width:60px}
+.ch-progress-bar{flex:1;height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden}
+.ch-progress-fill{height:100%;background:linear-gradient(90deg,#7C3AED,#8B5CF6);border-radius:3px;transition:width .5s ease}
+.ch-progress-lbl{font-size:12px;color:rgba(255,255,255,0.4)}
+.checklist-body{padding:20px 24px 100px}
+.check-section{margin-bottom:20px}
+.check-section-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.check-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--surface);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:transform .15s;border:1.5px solid var(--border)}
+.check-item.complete{border-color:var(--brand);background:var(--brand-light)}
+.check-item.complete .check-circle{background:var(--brand);border-color:var(--brand)}
+.check-item.complete .check-circle::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.check-circle{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.check-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+.check-name{flex:1;font-size:14px;font-weight:500}
+.check-action{font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;background:var(--driver-light);color:var(--driver);border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+.check-item.complete .check-action{background:var(--brand-light);color:var(--brand)}
+.earn-estimate{background:linear-gradient(135deg,#1a0a3a,#0d0520);border-radius:18px;padding:20px;margin-bottom:16px}
+.ee-title{font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:12px;letter-spacing:.04em;text-transform:uppercase}
+.ee-amount{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.ee-sub{font-size:12px;color:rgba(255,255,255,0.4)}
+.ee-breakdown{display:flex;gap:12px;margin-top:14px}
+.ee-item{flex:1;background:rgba(255,255,255,0.04);border-radius:10px;padding:10px;text-align:center}
+.ee-item-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;display:block}
+.ee-item-lbl{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px}
+
+/* ── PENDING SCREEN ── */
+#s-pending{background:var(--bg)}
+.pending-header{background:linear-gradient(180deg,#1a0a3a,#0d0520);padding:54px 24px 32px;border-radius:0 0 28px 28px;text-align:center}
+.pending-icon{width:72px;height:72px;border-radius:22px;background:rgba(245,166,35,0.2);border:2px solid rgba(245,166,35,0.3);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px}
+.pending-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:8px}
+.pending-sub{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6}
+.pending-body{padding:20px 24px 100px}
+.pending-timeline{display:flex;flex-direction:column;gap:0}
+.timeline-item{display:flex;gap:16px;align-items:flex-start;padding-bottom:24px;position:relative}
+.timeline-item::before{content:'';position:absolute;left:19px;top:40px;bottom:0;width:2px;background:var(--border)}
+.timeline-item:last-child::before{display:none}
+.timeline-dot{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;z-index:1}
+.td-done{background:var(--brand-light)}
+.td-active{background:var(--accent-light);animation:pulse-amber 2s ease-in-out infinite}
+.td-pending{background:var(--bg2)}
+.timeline-content{flex:1;padding-top:8px}
+.tl-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.tl-sub{font-size:12px;color:var(--muted);line-height:1.5}
+.tl-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-top:6px}
+.tl-badge-done{background:var(--brand-light);color:var(--brand)}
+.tl-badge-active{background:var(--accent-light);color:#7a4e00}
+.tl-badge-pending{background:var(--bg2);color:var(--hint)}
+.contact-card{background:var(--surface);border-radius:16px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm)}
+.contact-icon{width:42px;height:42px;border-radius:12px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.contact-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.contact-value{font-size:12px;color:var(--muted)}
+
+/* ── APPROVED SCREEN ── */
+#s-approved{background:linear-gradient(160deg,#061510,#0a2419,#0d3322);display:flex;flex-direction:column;align-items:center;padding:54px 28px 40px;text-align:center}
+.approved-confetti{font-size:56px;margin-bottom:16px;animation:confettiBounce .6s cubic-bezier(.68,-.55,.27,1.55) both}
+.approved-icon{width:88px;height:88px;border-radius:28px;background:linear-gradient(135deg,#1A7D52,#0F5C3A);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 20px;box-shadow:0 8px 32px rgba(26,125,82,0.4)}
+.approved-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#fff;margin-bottom:10px}
+.approved-sub{font-size:15px;color:rgba(255,255,255,0.45);line-height:1.65;margin-bottom:28px}
+.driver-id-card{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:20px;margin-bottom:28px;text-align:left}
+.did-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px}
+.did-row:last-child{border-bottom:none}
+.did-label{color:rgba(255,255,255,0.4)}
+.did-val{color:#fff;font-weight:500}
+.approved-cta{width:100%;padding:15px;background:linear-gradient(135deg,#1A7D52,#0F5C3A);color:#fff;font-size:16px;font-weight:700;border:none;border-radius:16px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 20px rgba(15,92,58,0.4);margin-bottom:12px}
+
+/* ── SHARED COMPONENTS ── */
+.next-btn{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:390px;padding:16px 24px 32px;background:rgba(242,240,235,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--border);z-index:50}
+.next-btn-inner{width:100%;padding:15px;background:linear-gradient(135deg,#7C3AED,#5B21B6);color:#fff;font-size:16px;font-weight:700;border:none;border-radius:16px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 16px rgba(124,58,237,0.35);transition:transform .15s,opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.next-btn-inner:active{transform:scale(.98)}
+.next-btn-inner.loading{opacity:.7;pointer-events:none}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A1A18;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── ANIMATIONS ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes pulse-amber{0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.3)}50%{box-shadow:0 0 0 8px rgba(245,166,35,0)}}
+@keyframes confettiBounce{from{transform:scale(0) rotate(-15deg)}to{transform:scale(1) rotate(0)}}
+
+/* Responsive */
+@media(max-height:900px){.phone{height:100vh;border-radius:0}.next-btn{width:100%}}
+@media(max-width:430px){.phone{width:100%;border-radius:0}.next-btn{width:100%}}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="phone">
+<div class="notch"></div>
+
+<!-- ══════════ WELCOME ══════════ -->
+<div class="screen active" id="s-welcome">
+  <div class="w-logo">SafarShare</div>
+  <div class="w-badge"><div class="w-pulse"></div> Driver registration open</div>
+  <div class="w-title">Earn while<br>you <span>drive.</span></div>
+  <p class="w-sub">Share your intercity rides and earn ₹8,000–15,000 extra every month. SafarShare handles bookings, payments, and passengers.</p>
+
+  <div class="earn-cards">
+    <div class="earn-card">
+      <span class="earn-val">₹12K</span>
+      <span class="earn-lbl">Avg monthly earnings</span>
+    </div>
+    <div class="earn-card">
+      <span class="earn-val">1,200+</span>
+      <span class="earn-lbl">Active drivers</span>
+    </div>
+    <div class="earn-card">
+      <span class="earn-val">3 days</span>
+      <span class="earn-lbl">Avg approval time</span>
+    </div>
+  </div>
+
+  <button class="w-cta" onclick="goTo('s-step1')">Register as Driver →</button>
+  <div class="w-login">Already registered? <span onclick="showToast('Login coming soon!')">Sign in</span></div>
+
+  <div class="requirements">
+    <div class="req-title">What you need</div>
+    <div class="req-item"><span class="req-icon">🪪</span> Aadhaar card</div>
+    <div class="req-item"><span class="req-icon">🚗</span> Valid driving license</div>
+    <div class="req-item"><span class="req-icon">📋</span> Vehicle registration certificate (RC)</div>
+    <div class="req-item"><span class="req-icon">📱</span> Smartphone with internet</div>
+    <div class="req-item"><span class="req-icon">🏦</span> UPI ID for receiving payments</div>
+  </div>
+</div>
+
+<!-- ══════════ STEP 1: Personal Info ══════════ -->
+<div class="screen" id="s-step1">
+  <div class="progress-header">
+    <button class="ph-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <div class="ph-step">Step 1 of 5</div>
+    <div class="ph-title">Personal Details</div>
+    <div class="ph-sub">Tell us about yourself</div>
+    <div class="progress-track"><div class="progress-fill" style="width:20%"></div></div>
+  </div>
+  <div class="form-body">
+    <div class="field-2col">
+      <div class="field">
+        <label class="field-label">First Name <span class="field-required">*</span></label>
+        <input class="field-input" type="text" placeholder="Rohit" id="fname">
+      </div>
+      <div class="field">
+        <label class="field-label">Last Name <span class="field-required">*</span></label>
+        <input class="field-input" type="text" placeholder="Kumar" id="lname">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Mobile Number <span class="field-required">*</span></label>
+      <input class="field-input" type="tel" placeholder="+91 98765 43210" id="phone" oninput="fmtPhone(this)" maxlength="13">
+      <div class="field-hint">OTP will be sent to verify this number</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Email Address <span class="field-required">*</span></label>
+      <input class="field-input" type="email" placeholder="rohit@gmail.com" id="email">
+    </div>
+    <div class="field">
+      <label class="field-label">Home City <span class="field-required">*</span></label>
+      <select class="field-input" id="city" style="cursor:pointer">
+        <option value="">Select your city</option>
+        <option>Lucknow</option><option>Kanpur</option><option>Varanasi</option>
+        <option>Prayagraj</option><option>Gorakhpur</option><option>Bahraich</option>
+        <option>Agra</option><option>Mathura</option><option>Basti</option>
+        <option>Ayodhya</option><option>Meerut</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">Date of Birth <span class="field-required">*</span></label>
+      <input class="field-input" type="date" id="dob" max="2006-01-01">
+      <div class="field-hint">Must be 18+ years old to drive</div>
+    </div>
+    <div class="field">
+      <label class="field-label">Password <span class="field-required">*</span></label>
+      <input class="field-input" type="password" placeholder="Min 8 characters" id="password" minlength="8">
+    </div>
+  </div>
+  <div class="next-btn">
+    <button class="next-btn-inner" onclick="validateStep1()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 2: Vehicle Details ══════════ -->
+<div class="screen" id="s-step2">
+  <div class="progress-header">
+    <button class="ph-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <div class="ph-step">Step 2 of 5</div>
+    <div class="ph-title">Your Vehicle</div>
+    <div class="ph-sub">Tell us about your car</div>
+    <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+  </div>
+  <div class="form-body">
+    <div class="field">
+      <label class="field-label">Vehicle Type <span class="field-required">*</span></label>
+      <div class="vehicle-type-grid">
+        <div class="vehicle-type-card selected" id="vt-hatchback" onclick="selectVehicleType('hatchback',this)">
+          <span class="vehicle-type-emoji">🚗</span>
+          <div class="vehicle-type-name">Hatchback</div>
+          <div class="vehicle-type-desc">Alto, Swift, i10</div>
+        </div>
+        <div class="vehicle-type-card" id="vt-sedan" onclick="selectVehicleType('sedan',this)">
+          <span class="vehicle-type-emoji">🚙</span>
+          <div class="vehicle-type-name">Sedan</div>
+          <div class="vehicle-type-desc">Dzire, Amaze, Aura</div>
+        </div>
+        <div class="vehicle-type-card" id="vt-suv" onclick="selectVehicleType('suv',this)">
+          <span class="vehicle-type-emoji">🚐</span>
+          <div class="vehicle-type-name">SUV</div>
+          <div class="vehicle-type-desc">Creta, Brezza, XUV</div>
+        </div>
+        <div class="vehicle-type-card" id="vt-mpv" onclick="selectVehicleType('mpv',this)">
+          <span class="vehicle-type-emoji">🚌</span>
+          <div class="vehicle-type-name">MPV</div>
+          <div class="vehicle-type-desc">Ertiga, Crysta, Innova</div>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Vehicle Model <span class="field-required">*</span></label>
+      <input class="field-input" type="text" placeholder="e.g. Maruti Swift LXi" id="v-model">
+    </div>
+    <div class="field">
+      <label class="field-label">Vehicle Number <span class="field-required">*</span></label>
+      <input class="field-input" type="text" placeholder="UP 32 AB 1234" id="v-number" oninput="this.value=this.value.toUpperCase()">
+      <div class="field-hint">Enter as it appears on your RC — e.g. UP32AB1234</div>
+    </div>
+    <div class="field-2col">
+      <div class="field">
+        <label class="field-label">Year <span class="field-required">*</span></label>
+        <select class="field-input" id="v-year" style="cursor:pointer">
+          <option value="">Year</option>
+          ${Array.from({length:15},(_,i)=>2026-i).map(y=>`<option>${y}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label class="field-label">Color <span class="field-required">*</span></label>
+        <input class="field-input" type="text" placeholder="White" id="v-color">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Number of Seats (excluding driver)</label>
+      <select class="field-input" id="v-seats" style="cursor:pointer">
+        <option value="3">3 seats</option>
+        <option value="4" selected>4 seats</option>
+        <option value="5">5 seats</option>
+        <option value="6">6 seats</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label">AC Available?</label>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <div class="vehicle-type-card selected" id="ac-yes" onclick="selectAC(true,this)" style="flex:1;padding:10px">
+          <div class="vehicle-type-name">❄️ Yes, AC</div>
+        </div>
+        <div class="vehicle-type-card" id="ac-no" onclick="selectAC(false,this)" style="flex:1;padding:10px">
+          <div class="vehicle-type-name">🌬️ No AC</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="next-btn">
+    <button class="next-btn-inner" onclick="validateStep2()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 3: Documents ══════════ -->
+<div class="screen" id="s-step3">
+  <div class="progress-header">
+    <button class="ph-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <div class="ph-step">Step 3 of 5</div>
+    <div class="ph-title">Upload Documents</div>
+    <div class="ph-sub">We verify all documents for safety</div>
+    <div class="progress-track"><div class="progress-fill" style="width:60%"></div></div>
+  </div>
+  <div class="form-body">
+    <div style="background:var(--accent-light);border-radius:12px;padding:12px 14px;font-size:13px;color:#7a4e00;line-height:1.55;margin-bottom:20px;border:1px solid rgba(245,166,35,0.2)">
+      📋 Upload clear photos of your original documents. All documents are stored securely and used only for verification.
+    </div>
+    <div class="doc-upload">
+
+      <!-- Aadhaar -->
+      <div class="doc-item" id="doc-aadhaar">
+        <div class="doc-header">
+          <div class="doc-upload-icon">🪪</div>
+          <div>
+            <div class="doc-title">Aadhaar Card <span style="color:var(--danger);font-size:12px">*</span></div>
+            <div class="doc-sub">Front side · JPG or PDF · Max 5MB</div>
+          </div>
+          <div class="doc-status pending" id="aadhaar-status">Tap to upload</div>
+        </div>
+        <input type="file" class="doc-input" accept="image/*,application/pdf" onchange="handleDoc(this,'aadhaar')">
+        <div class="doc-preview" id="aadhaar-preview"><img id="aadhaar-img" src="" alt="Aadhaar"></div>
+        <div class="doc-number-field" id="aadhaar-num-wrap">
+          <input class="field-input" type="text" placeholder="Aadhaar number (12 digits)" id="aadhaar-num" maxlength="12" inputmode="numeric" style="margin-top:6px">
+        </div>
+      </div>
+
+      <!-- Driving License -->
+      <div class="doc-item" id="doc-license">
+        <div class="doc-header">
+          <div class="doc-upload-icon">🚗</div>
+          <div>
+            <div class="doc-title">Driving License <span style="color:var(--danger);font-size:12px">*</span></div>
+            <div class="doc-sub">Front side · Valid, not expired · Max 5MB</div>
+          </div>
+          <div class="doc-status pending" id="license-status">Tap to upload</div>
+        </div>
+        <input type="file" class="doc-input" accept="image/*,application/pdf" onchange="handleDoc(this,'license')">
+        <div class="doc-preview" id="license-preview"><img id="license-img" src="" alt="License"></div>
+        <div class="doc-number-field" id="license-num-wrap">
+          <input class="field-input" type="text" placeholder="License number e.g. UP1420110001234" id="license-num" style="margin-top:6px;text-transform:uppercase">
+          <input class="field-input" type="date" id="license-expiry" style="margin-top:8px">
+          <div class="field-hint">License expiry date</div>
+        </div>
+      </div>
+
+      <!-- Vehicle RC -->
+      <div class="doc-item" id="doc-rc">
+        <div class="doc-header">
+          <div class="doc-upload-icon">📋</div>
+          <div>
+            <div class="doc-title">Vehicle RC (Registration) <span style="color:var(--danger);font-size:12px">*</span></div>
+            <div class="doc-sub">Registration Certificate · Max 5MB</div>
+          </div>
+          <div class="doc-status pending" id="rc-status">Tap to upload</div>
+        </div>
+        <input type="file" class="doc-input" accept="image/*,application/pdf" onchange="handleDoc(this,'rc')">
+        <div class="doc-preview" id="rc-preview"><img id="rc-img" src="" alt="RC"></div>
+        <div class="doc-number-field" id="rc-num-wrap">
+          <input class="field-input" type="text" placeholder="RC number e.g. UP32AB1234" id="rc-num" style="margin-top:6px;text-transform:uppercase">
+        </div>
+      </div>
+
+      <!-- Insurance (optional) -->
+      <div class="doc-item" id="doc-insurance">
+        <div class="doc-header">
+          <div class="doc-upload-icon">🛡️</div>
+          <div>
+            <div class="doc-title">Vehicle Insurance</div>
+            <div class="doc-sub">Optional but recommended · Max 5MB</div>
+          </div>
+          <div class="doc-status pending" id="insurance-status">Optional</div>
+        </div>
+        <input type="file" class="doc-input" accept="image/*,application/pdf" onchange="handleDoc(this,'insurance')">
+        <div class="doc-preview" id="insurance-preview"><img id="insurance-img" src="" alt="Insurance"></div>
+      </div>
+
+    </div>
+  </div>
+  <div class="next-btn">
+    <button class="next-btn-inner" onclick="validateStep3()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 4: Preferences & Bank ══════════ -->
+<div class="screen" id="s-step4">
+  <div class="progress-header">
+    <button class="ph-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <div class="ph-step">Step 4 of 5</div>
+    <div class="ph-title">Preferences & Payment</div>
+    <div class="ph-sub">Set your ride preferences and payout method</div>
+    <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+  </div>
+  <div class="form-body">
+    <!-- Ride preferences -->
+    <div class="field">
+      <label class="field-label" style="margin-bottom:12px">Ride Preferences</label>
+      <div style="background:var(--surface);border-radius:16px;padding:4px 16px">
+        <div class="pref-row">
+          <div class="pref-left">
+            <div class="pref-icon" style="background:#fce7f3">👩</div>
+            <div>
+              <div class="pref-name">Women-only rides</div>
+              <div class="pref-sub">Only accept female passengers</div>
+            </div>
+          </div>
+          <div class="toggle" id="pref-women" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="pref-row">
+          <div class="pref-left">
+            <div class="pref-icon" style="background:#f0fdf4">🎵</div>
+            <div>
+              <div class="pref-name">Music allowed</div>
+              <div class="pref-sub">Passengers can play music</div>
+            </div>
+          </div>
+          <div class="toggle on" id="pref-music" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="pref-row">
+          <div class="pref-left">
+            <div class="pref-icon" style="background:#eff6ff">🧳</div>
+            <div>
+              <div class="pref-name">Large luggage allowed</div>
+              <div class="pref-sub">Passengers can bring big bags</div>
+            </div>
+          </div>
+          <div class="toggle on" id="pref-luggage" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="pref-row">
+          <div class="pref-left">
+            <div class="pref-icon" style="background:#f5f3ff">🚬</div>
+            <div>
+              <div class="pref-name">Smoking allowed</div>
+              <div class="pref-sub">Passengers can smoke in car</div>
+            </div>
+          </div>
+          <div class="toggle" id="pref-smoking" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="pref-row">
+          <div class="pref-left">
+            <div class="pref-icon" style="background:#fef9c3">🐾</div>
+            <div>
+              <div class="pref-name">Pets allowed</div>
+              <div class="pref-sub">Passengers can bring pets</div>
+            </div>
+          </div>
+          <div class="toggle" id="pref-pets" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Emergency contacts -->
+    <div class="field" style="margin-top:4px">
+      <label class="field-label">Emergency Contact <span class="field-required">*</span></label>
+      <input class="field-input" type="text" placeholder="Contact name" id="ec-name" style="margin-bottom:8px">
+      <input class="field-input" type="tel" placeholder="+91 phone number" id="ec-phone" oninput="fmtPhone(this)">
+      <div class="field-hint">This person will be alerted if a passenger triggers the panic button on your ride</div>
+    </div>
+
+    <!-- UPI for payouts -->
+    <div class="field" style="margin-top:4px">
+      <label class="field-label">UPI ID for Payouts <span class="field-required">*</span></label>
+      <div class="upi-verify">
+        <input class="field-input" type="text" placeholder="rohit@upi or 9876543210@paytm" id="upi-id" style="flex:1">
+        <button class="verify-btn" onclick="verifyUPI()">Verify</button>
+      </div>
+      <div class="field-hint" id="upi-status">Earnings will be transferred within 24 hrs of trip completion</div>
+    </div>
+
+    <div class="bank-info">
+      💡 SafarShare deducts 13% platform fee per ride. Rest is transferred to your UPI within 24 hours of trip completion.
+      You can also opt for weekly consolidated payouts.
+    </div>
+  </div>
+  <div class="next-btn">
+    <button class="next-btn-inner" onclick="validateStep4()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════ STEP 5: Review & Submit ══════════ -->
+<div class="screen" id="s-step5">
+  <div class="progress-header">
+    <button class="ph-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <div class="ph-step">Step 5 of 5</div>
+    <div class="ph-title">Review & Submit</div>
+    <div class="ph-sub">Check your details before submitting</div>
+    <div class="progress-track"><div class="progress-fill" style="width:100%"></div></div>
+  </div>
+  <div class="form-body">
+    <!-- Summary card -->
+    <div style="background:var(--surface);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Personal</div>
+      <div id="review-personal" style="font-size:14px;color:var(--text);line-height:2"></div>
+    </div>
+    <div style="background:var(--surface);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Vehicle</div>
+      <div id="review-vehicle" style="font-size:14px;color:var(--text);line-height:2"></div>
+    </div>
+    <div style="background:var(--surface);border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Documents</div>
+      <div id="review-docs" style="font-size:14px;color:var(--text);line-height:2"></div>
+    </div>
+
+    <!-- Terms -->
+    <div style="display:flex;gap:12px;align-items:flex-start;padding:16px;background:var(--brand-light);border-radius:14px;margin-bottom:4px;border:1px solid rgba(15,92,58,0.15)">
+      <div onclick="document.getElementById('terms-check').classList.toggle('checked');this.textContent=this.textContent.trim()==='☐'?'☑':'☐'" style="font-size:20px;cursor:pointer;flex-shrink:0;margin-top:1px" id="terms-check">☐</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.55">
+        I agree to SafarShare's <span style="color:var(--brand);font-weight:600;cursor:pointer">Driver Terms of Service</span>, 
+        <span style="color:var(--brand);font-weight:600;cursor:pointer">Privacy Policy</span>, and confirm that all submitted information is accurate and genuine.
+      </div>
+    </div>
+  </div>
+  <div class="next-btn">
+    <button class="next-btn-inner" id="submit-btn" onclick="submitApplication()">
+      Submit Application 🚗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ CHECKLIST / DASHBOARD ══════════ -->
+<div class="screen" id="s-checklist">
+  <div class="checklist-header">
+    <div class="ch-title">Application Submitted!</div>
+    <div class="ch-sub">Track your onboarding progress below</div>
+    <div class="ch-progress-wrap">
+      <div class="ch-pct" id="ch-pct-text">40%</div>
+      <div style="flex:1">
+        <div class="ch-progress-bar"><div class="ch-progress-fill" id="ch-pct-bar" style="width:40%"></div></div>
+        <div class="ch-progress-lbl" style="margin-top:4px">2 of 5 steps complete</div>
+      </div>
+    </div>
+  </div>
+  <div class="checklist-body">
+
+    <!-- Earnings estimate -->
+    <div class="earn-estimate">
+      <div class="ee-title">Your Earnings Potential</div>
+      <div class="ee-amount">₹12,400 <span style="font-size:16px;color:rgba(255,255,255,0.5)">/month</span></div>
+      <div class="ee-sub">Based on 3 rides/week on Lucknow → Kanpur route</div>
+      <div class="ee-breakdown">
+        <div class="ee-item"><span class="ee-item-val">12</span><span class="ee-item-lbl">Rides/month</span></div>
+        <div class="ee-item"><span class="ee-item-val">₹1,280</span><span class="ee-item-lbl">Per ride avg</span></div>
+        <div class="ee-item"><span class="ee-item-val">87%</span><span class="ee-item-lbl">You keep</span></div>
+      </div>
+    </div>
+
+    <!-- Checklist items -->
+    <div class="check-section">
+      <div class="check-section-title">Registration</div>
+      <div class="check-item complete" id="ci-account">
+        <div class="check-circle"></div>
+        <span class="check-icon">👤</span>
+        <span class="check-name">Account created</span>
+        <button class="check-action" onclick="showToast('Profile looks great!')">Done ✓</button>
+      </div>
+      <div class="check-item complete" id="ci-docs">
+        <div class="check-circle"></div>
+        <span class="check-icon">📋</span>
+        <span class="check-name">Documents uploaded</span>
+        <button class="check-action" onclick="showToast('Under review')">Done ✓</button>
+      </div>
+    </div>
+
+    <div class="check-section">
+      <div class="check-section-title">Verification (1-3 days)</div>
+      <div class="check-item" id="ci-verify" onclick="showToast('Admin is reviewing your documents')">
+        <div class="check-circle"></div>
+        <span class="check-icon">🔍</span>
+        <span class="check-name">Document verification</span>
+        <button class="check-action">In review</button>
+      </div>
+      <div class="check-item" id="ci-phone">
+        <div class="check-circle"></div>
+        <span class="check-icon">📱</span>
+        <span class="check-name">Phone number verified</span>
+        <button class="check-action" onclick="goTo('s-otp-verify')">Verify now</button>
+      </div>
+    </div>
+
+    <div class="check-section">
+      <div class="check-section-title">Before your first ride</div>
+      <div class="check-item" id="ci-training" onclick="goTo('s-training')">
+        <div class="check-circle"></div>
+        <span class="check-icon">🎓</span>
+        <span class="check-name">Complete safety training</span>
+        <button class="check-action" onclick="event.stopPropagation();goTo('s-training')">Start →</button>
+      </div>
+      <div class="check-item" id="ci-upi">
+        <div class="check-circle"></div>
+        <span class="check-icon">💰</span>
+        <span class="check-name">UPI verified for payouts</span>
+        <button class="check-action" onclick="showToast('UPI verified ✓');markComplete('ci-upi')">Verify</button>
+      </div>
+      <div class="check-item" id="ci-emergency">
+        <div class="check-circle"></div>
+        <span class="check-icon">🆘</span>
+        <span class="check-name">Emergency contact added</span>
+        <button class="check-action" onclick="showToast('Contact saved ✓');markComplete('ci-emergency')">Add</button>
+      </div>
+    </div>
+
+    <!-- Contact support -->
+    <div class="contact-card">
+      <div class="contact-icon">📞</div>
+      <div>
+        <div class="contact-label">Driver Support</div>
+        <div class="contact-value">1800-XXX-XXXX · Mon-Sat 9AM-6PM</div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-icon">📧</div>
+      <div>
+        <div class="contact-label">Email Support</div>
+        <div class="contact-value">drivers@safarshare.in</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ TRAINING ══════════ -->
+<div class="screen" id="s-training">
+  <div class="progress-header">
+    <button class="ph-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <div class="ph-step">Driver Training</div>
+    <div class="ph-title">Safety & Guidelines</div>
+    <div class="ph-sub">Complete all 4 modules to get approved</div>
+    <div class="progress-track"><div class="progress-fill" id="training-progress" style="width:0%"></div></div>
+  </div>
+  <div class="form-body" id="training-body">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- ══════════ PENDING APPROVAL ══════════ -->
+<div class="screen" id="s-pending">
+  <div class="pending-header">
+    <div class="pending-icon">⏳</div>
+    <div class="pending-title">Under Review</div>
+    <p class="pending-sub">Your application is being reviewed by our team. This typically takes 1-3 business days.</p>
+  </div>
+  <div class="pending-body">
+    <div class="pending-timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot td-done">✅</div>
+        <div class="timeline-content">
+          <div class="tl-title">Application submitted</div>
+          <div class="tl-sub">All documents uploaded successfully</div>
+          <span class="tl-badge tl-badge-done">Completed</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot td-active">🔍</div>
+        <div class="timeline-content">
+          <div class="tl-title">Document verification</div>
+          <div class="tl-sub">Admin is reviewing your Aadhaar, license, and RC</div>
+          <span class="tl-badge tl-badge-active">In progress · 1-2 days</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot td-pending">📞</div>
+        <div class="timeline-content">
+          <div class="tl-title">Quick call verification</div>
+          <div class="tl-sub">Our team may call you to confirm details</div>
+          <span class="tl-badge tl-badge-pending">Pending</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot td-pending">✅</div>
+        <div class="timeline-content">
+          <div class="tl-title">Account approved</div>
+          <div class="tl-sub">You'll receive SMS + push notification when approved</div>
+          <span class="tl-badge tl-badge-pending">Pending</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot td-pending">🚗</div>
+        <div class="timeline-content">
+          <div class="tl-title">Post your first ride!</div>
+          <div class="tl-sub">Start earning by sharing your intercity journeys</div>
+          <span class="tl-badge tl-badge-pending">Pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ APPROVED ══════════ -->
+<div class="screen" id="s-approved">
+  <div class="approved-confetti">🎉</div>
+  <div class="approved-icon">🚗</div>
+  <div class="approved-title">You're Approved!</div>
+  <p class="approved-sub">Welcome to SafarShare! Your driver account is active. Start posting rides and earning today.</p>
+  <div class="driver-id-card">
+    <div class="did-row"><span class="did-label">Driver ID</span><span class="did-val" style="font-family:monospace" id="did-id">#DRV-4821</span></div>
+    <div class="did-row"><span class="did-label">Name</span><span class="did-val" id="did-name">Rohit Kumar</span></div>
+    <div class="did-row"><span class="did-label">Vehicle</span><span class="did-val" id="did-vehicle">Maruti Swift · UP32AB1234</span></div>
+    <div class="did-row"><span class="did-label">Rating</span><span class="did-val">⭐ New Driver</span></div>
+    <div class="did-row"><span class="did-label">Status</span><span class="did-val" style="color:#4ade80">✓ Verified Driver</span></div>
+  </div>
+  <button class="approved-cta" onclick="showToast('Opening driver app...')">Start Driving →</button>
+  <div style="font-size:13px;color:rgba(255,255,255,0.3);margin-top:4px;cursor:pointer" onclick="goTo('s-checklist')">View onboarding checklist</div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div><!-- end phone -->
+</div><!-- end app -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+const formData = {
+  personal:{}, vehicle:{vehicleType:'hatchback',acAvailable:true},
+  docs:{aadhaar:false,license:false,rc:false,insurance:false},
+  prefs:{}, bank:{}, training:{completed:[]}
+};
+let currentScreen = 's-welcome';
+const history = ['s-welcome'];
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function goTo(id) {
+  const cur = document.getElementById(currentScreen);
+  cur.classList.remove('active'); cur.classList.add('out');
+  setTimeout(()=>cur.classList.remove('out'),350);
+  const next = document.getElementById(id);
+  next.classList.add('active');
+  currentScreen = id;
+  if(history[history.length-1]!==id) history.push(id);
+  next.scrollTop = 0;
+}
+function goBack() {
+  if(history.length<=1) return;
+  history.pop();
+  const prev = history[history.length-1];
+  const cur = document.getElementById(currentScreen);
+  cur.classList.remove('active');
+  document.getElementById(prev).classList.add('active');
+  currentScreen = prev;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ── Utility ───────────────────────────────────────────────────────────────
+function fmtPhone(el) {
+  let v = el.value.replace(/[^\d+]/g,'');
+  if(v && !v.startsWith('+91')) v='+91'+v.replace(/^\+91/,'');
+  el.value=v;
+}
+function val(id){return document.getElementById(id)?.value?.trim()||''}
+function markComplete(id) {
+  document.getElementById(id)?.classList.add('complete');
+  updateChecklistProgress();
+}
+function updateChecklistProgress() {
+  const items = document.querySelectorAll('.check-item');
+  const done = document.querySelectorAll('.check-item.complete').length;
+  const pct = Math.round((done/items.length)*100);
+  const pctEl = document.getElementById('ch-pct-text');
+  const barEl = document.getElementById('ch-pct-bar');
+  if(pctEl) pctEl.textContent = pct+'%';
+  if(barEl) barEl.style.width = pct+'%';
+}
+
+// ── Step 1 validation ─────────────────────────────────────────────────────
+function validateStep1() {
+  const fname=val('fname'),lname=val('lname'),phone=val('phone'),email=val('email'),city=val('city'),dob=val('dob'),pass=val('password');
+  if(!fname) return showToast('Enter your first name');
+  if(!lname) return showToast('Enter your last name');
+  if(phone.length<13) return showToast('Enter a valid mobile number');
+  if(!email.includes('@')) return showToast('Enter a valid email');
+  if(!city) return showToast('Select your city');
+  if(!dob) return showToast('Enter your date of birth');
+  if(pass.length<8) return showToast('Password must be at least 8 characters');
+  // Age check
+  const age = (Date.now()-new Date(dob))/(365.25*24*3600*1000);
+  if(age<18) return showToast('You must be 18+ years old');
+  formData.personal = {fname,lname,phone,email,city,dob};
+  goTo('s-step2');
+}
+
+// ── Step 2 validation ─────────────────────────────────────────────────────
+let selectedVehicleType = 'hatchback';
+let acAvailable = true;
+function selectVehicleType(type,el) {
+  selectedVehicleType = type;
+  document.querySelectorAll('.vehicle-type-card[id^="vt-"]').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function selectAC(isAC, el) {
+  acAvailable = isAC;
+  document.getElementById('ac-yes').classList.toggle('selected', isAC);
+  document.getElementById('ac-no').classList.toggle('selected', !isAC);
+}
+function validateStep2() {
+  const model=val('v-model'),number=val('v-number'),year=val('v-year'),color=val('v-color');
+  if(!model) return showToast('Enter vehicle model');
+  if(!number) return showToast('Enter vehicle number');
+  if(!year) return showToast('Select vehicle year');
+  if(!color) return showToast('Enter vehicle color');
+  formData.vehicle = {type:selectedVehicleType,model,number,year,color,seats:val('v-seats'),acAvailable};
+  goTo('s-step3');
+}
+
+// ── Step 3: Document handling ─────────────────────────────────────────────
+function handleDoc(input, docType) {
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024) return showToast('File too large. Max 5MB');
+
+  // Show preview for images
+  if(file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.getElementById(docType+'-img');
+      const preview = document.getElementById(docType+'-preview');
+      if(img) { img.src=e.target.result; preview.style.display='block'; }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Mark as uploaded
+  formData.docs[docType] = true;
+  const item = document.getElementById('doc-'+docType);
+  const status = document.getElementById(docType+'-status');
+  const numWrap = document.getElementById(docType+'-num-wrap');
+  if(item) item.classList.add('uploaded');
+  if(status) { status.textContent='✓ Uploaded'; status.className='doc-status done'; }
+  if(numWrap) numWrap.style.display='block';
+  showToast(docType.charAt(0).toUpperCase()+docType.slice(1)+' uploaded ✓');
+}
+function validateStep3() {
+  if(!formData.docs.aadhaar) return showToast('Please upload your Aadhaar card');
+  if(!formData.docs.license) return showToast('Please upload your driving license');
+  if(!formData.docs.rc) return showToast('Please upload your vehicle RC');
+  if(!val('aadhaar-num') || val('aadhaar-num').length!==12) return showToast('Enter 12-digit Aadhaar number');
+  if(!val('license-num')) return showToast('Enter your license number');
+  formData.docs.aadhaarNum = val('aadhaar-num');
+  formData.docs.licenseNum = val('license-num');
+  formData.docs.rcNum = val('rc-num');
+  goTo('s-step4');
+}
+
+// ── Step 4 validation ─────────────────────────────────────────────────────
+function verifyUPI() {
+  const upi = val('upi-id');
+  if(!upi) return showToast('Enter your UPI ID');
+  const status = document.getElementById('upi-status');
+  status.textContent = '⏳ Verifying...'; status.style.color='var(--accent)';
+  setTimeout(()=>{
+    status.textContent = '✓ UPI verified — '+upi; status.style.color='var(--brand)';
+    formData.bank.upi = upi; formData.bank.verified = true;
+    showToast('UPI ID verified ✓');
+  }, 1400);
+}
+function validateStep4() {
+  if(!val('ec-name')) return showToast('Enter emergency contact name');
+  if(val('ec-phone').length<13) return showToast('Enter valid emergency contact number');
+  if(!val('upi-id')) return showToast('Enter your UPI ID for payouts');
+  formData.prefs = {
+    womenOnly: document.getElementById('pref-women').classList.contains('on'),
+    musicAllowed: document.getElementById('pref-music').classList.contains('on'),
+    luggageAllowed: document.getElementById('pref-luggage').classList.contains('on'),
+    smokingAllowed: document.getElementById('pref-smoking').classList.contains('on'),
+    petsAllowed: document.getElementById('pref-pets').classList.contains('on'),
+  };
+  formData.bank.upi = val('upi-id');
+  formData.personal.emergencyContact = {name:val('ec-name'), phone:val('ec-phone')};
+  buildReview();
+  goTo('s-step5');
+}
+
+// ── Step 5: Review ────────────────────────────────────────────────────────
+function buildReview() {
+  const p = formData.personal, v = formData.vehicle, d = formData.docs;
+  document.getElementById('review-personal').innerHTML =
+    `<b>${p.fname} ${p.lname}</b><br>${p.phone} · ${p.email}<br>${p.city} · DOB: ${p.dob}`;
+  document.getElementById('review-vehicle').innerHTML =
+    `<b>${v.model}</b> (${v.type})<br>${v.number} · ${v.year} · ${v.color}<br>${v.seats} seats · ${v.acAvailable?'AC ❄️':'No AC'}`;
+  document.getElementById('review-docs').innerHTML =
+    `✓ Aadhaar: ${d.aadhaarNum}<br>✓ License: ${d.licenseNum||'uploaded'}<br>✓ RC: ${d.rcNum||'uploaded'}<br>${d.insurance?'✓ Insurance uploaded':'— No insurance'}`;
+}
+async function submitApplication() {
+  const termsCheck = document.getElementById('terms-check');
+  if(!termsCheck.textContent.includes('☑')) return showToast('Please accept the terms to continue');
+  const btn = document.getElementById('submit-btn');
+  btn.innerHTML='<div class="spinner"></div> Submitting...'; btn.classList.add('loading');
+
+  // In production: POST to /api/auth/register + /api/users/upload-document etc.
+  // For now simulate API call
+  await new Promise(r=>setTimeout(r,2000));
+
+  // Update approved screen with user data
+  const p=formData.personal, v=formData.vehicle;
+  document.getElementById('did-name').textContent = p.fname+' '+p.lname;
+  document.getElementById('did-vehicle').textContent = v.model+' · '+v.number;
+  document.getElementById('did-id').textContent = '#DRV-'+Math.floor(4000+Math.random()*1000);
+
+  btn.innerHTML='Submit Application 🚗'; btn.classList.remove('loading');
+  goTo('s-checklist');
+  showToast('Application submitted! 🎉');
+}
+
+// ── Training ──────────────────────────────────────────────────────────────
+const trainingModules = [
+  { icon:'🛡️', title:'Safety Guidelines', desc:'Learn SafarShare safety rules and how to handle emergencies during a ride.', points:['Always verify passenger identity before starting', 'Never cancel within 12 hours of departure', 'Keep emergency contacts updated', 'Know how to use the panic button'], time:'3 min' },
+  { icon:'📍', title:'Using the App', desc:'How to post rides, accept bookings, and manage your schedule.', points:['Post rides with accurate timing', 'Accept or decline booking requests', 'Start and complete rides in-app', 'Update location during active rides'], time:'4 min' },
+  { icon:'💬', title:'Communicating with Passengers', desc:'Best practices for safe and professional communication.', points:['Use in-app chat only — never share personal number', 'Confirm pickup point before departure', 'Notify passengers about delays immediately', 'Be respectful and professional always'], time:'3 min' },
+  { icon:'💰', title:'Payments & Earnings', desc:'Understand how you get paid, refunds, and cancellation policy.', points:['Money is held by SafarShare until trip ends', 'Payout within 24 hours of completion', '13% platform commission per ride', 'Late cancellations attract rating penalties'], time:'2 min' },
+];
+let currentModule = 0;
+let completedModules = [];
+
+function renderTraining() {
+  const body = document.getElementById('training-body');
+  if(!body) return;
+  const pct = Math.round((completedModules.length/trainingModules.length)*100);
+  document.getElementById('training-progress').style.width=pct+'%';
+
+  body.innerHTML = trainingModules.map((m,i)=>`
+    <div style="background:var(--surface);border-radius:16px;padding:18px;margin-bottom:12px;cursor:pointer;border:1.5px solid ${completedModules.includes(i)?'var(--brand)':'var(--border)'};background:${completedModules.includes(i)?'var(--brand-light)':'var(--surface)'}" onclick="openModule(${i})">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:13px;background:${completedModules.includes(i)?'var(--brand-light)':'var(--bg2)'};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${m.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:var(--text)">${m.title}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${m.time} · ${m.points.length} key points</div>
+        </div>
+        <div style="font-size:18px">${completedModules.includes(i)?'✅':'›'}</div>
+      </div>
+    </div>
+  `).join('')+`
+    <button onclick="finishTraining()" style="width:100%;padding:14px;background:${completedModules.length>=trainingModules.length?'linear-gradient(135deg,#1A7D52,#0F5C3A)':'var(--bg2)'};color:${completedModules.length>=trainingModules.length?'#fff':'var(--hint)'};border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px;font-family:'Plus Jakarta Sans',sans-serif">
+      ${completedModules.length>=trainingModules.length?'Complete Training ✓':`Complete all ${trainingModules.length} modules to continue`}
+    </button>`;
+}
+function openModule(i) {
+  const m = trainingModules[i];
+  // Show module content as an overlay-style alert
+  const html = m.points.map(p=>`• ${p}`).join('\n');
+  alert(`${m.icon} ${m.title}\n\n${m.desc}\n\n${html}`);
+  if(!completedModules.includes(i)) completedModules.push(i);
+  renderTraining();
+}
+function finishTraining() {
+  if(completedModules.length<trainingModules.length) return showToast('Complete all modules first');
+  markComplete('ci-training');
+  showToast('Training complete! 🎓');
+  goTo('s-checklist');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('s-step2').innerHTML = document.getElementById('s-step2').innerHTML.replace(
+    '${Array.from({length:15},(_,i)=>2026-i).map(y=>`<option>${y}</option>`).join(\'\')}',
+    Array.from({length:15},(_,i)=>2026-i).map(y=>`<option>${y}</option>`).join('')
+  );
+  // Render training on load
+  if(document.getElementById('training-body')) renderTraining();
+});
+
+// Watch for training screen
+const origGoTo = goTo;
+window.goTo = function(id) {
+  origGoTo(id);
+  if(id==='s-training') renderTraining();
+};
+</script>
+</body>
+</html>
