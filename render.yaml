@@ -20,5 +20,7 @@ services:
         value: 69b90a681dee2927e60619d2
       - key: MSG91_SENDER_ID
         value: MSGIND
+      - key: OTP_TEST_MODE
+        value: "true"
       - key: MONGODB_URI
         value: mongodb+srv://abhishek:abhi1994@meramistribackend.8upk2ns.mongodb.net/?appName=meramistribackend
