@@ -12,3 +12,13 @@ services:
         value: 10000
       - key: FRONTEND_URL
         value: https://safarshare-web.vercel.app,http://localhost:3000,http://127.0.0.1:5502
+      - key: JWT_SECRET
+        value: safarshare_jwt_secret_change_this_before_production
+      - key: MSG91_AUTH_KEY
+        value: 462793As4gVnFcw68bfc04eP1
+      - key: MSG91_OTP_TEMPLATE_ID
+        value: 69b90a681dee2927e60619d2
+      - key: MSG91_SENDER_ID
+        value: MSGIND
+      - key: MONGODB_URI
+        value: mongodb+srv://abhishek:abhi1994@meramistribackend.8upk2ns.mongodb.net/?appName=meramistribackend
