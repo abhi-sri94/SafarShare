@@ -65,9 +65,11 @@ const sendOTP = async (phone, purpose = 'register') => {
     );
 
     if (response.data?.type === 'success') {
-      logger.info(`[MSG91] OTP sent → ${phone} (${purpose})`);
+      logger.info(`[MSG91] OTP sent → ${phone} (${purpose}). Response: ${JSON.stringify(response.data)}`);
       return { success: true, message: 'OTP sent successfully' };
     }
+    
+    logger.warn(`[MSG91] Unexpected response: ${JSON.stringify(response.data)}`);
 
     throw new Error(response.data?.message || 'MSG91 send failed');
 
