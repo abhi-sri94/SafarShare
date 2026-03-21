@@ -1,9 +1,8 @@
-how to do dlt tegistration/**
+/**
  * twilioService.js  ← filename kept so all routes import without changes
- * SMS layer powered by MSG91 (not Twilio)
+ * SMS/WhatsApp layer powered by MSG91
  *
  * MSG91 docs: https://docs.msg91.com
- * Sign up:    https://msg91.com
  */
 
 const axios = require('axios');
@@ -14,43 +13,24 @@ const logger = require('../utils/logger');
 const OTP_EXPIRY_MINUTES = parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
 const MAX_ATTEMPTS = parseInt(process.env.OTP_MAX_ATTEMPTS) || 5;
 
-const AUTH_KEY = process.env.MSG91_AUTH_KEY;
-const TEMPLATE_ID = process.env.MSG91_OTP_TEMPLATE_ID;
-const SENDER_ID = process.env.MSG91_SENDER_ID || 'MSGIND';
-const FLOW_ID = process.env.MSG91_SMS_FLOW_ID;
+const AUTH_KEY = '462793ANWxhhvUbfxr69be35afP1';
+const TEMPLATE_ID = '69b90a681dee2927e60619d2'; 
+const SENDER_ID = 'MSGIND';
 const BASE_URL = 'https://api.msg91.com/api/v5';
 
-// MSG91 format: 91XXXXXXXXXX (no +, no spaces)
-const formatPhone = (phone) => {
-  const d = phone.replace(/\D/g, '');
-  if (d.length === 12 && d.startsWith('91')) return d;
-  if (d.length === 10) return `91${d}`;
-  return d;
-};
+// ... (formatPhone) ...
 
-// ── sendOTP ──────────────────────────────────────────────────────────────────
-// Generates a 6-digit OTP, hashes it in MongoDB, sends via MSG91.
-// Dev mode: logs to console only — zero API cost during development.
-//
-// MSG91 OTP template must use ##OTP## placeholder e.g.:
-//   "Your SafarShare OTP is ##OTP##. Valid for 10 minutes. - SFRSHR"
-// ─────────────────────────────────────────────────────────────────────────────
 const sendOTP = async (phone, purpose = 'register') => {
   try {
     await OTP.deleteMany({ phone, purpose });
 
-    // 🏆 PRODUCTION-READY OTP LOGIC:
-    // If 'OTP_TEST_MODE' is 'true' in Render, we use 000000 so you can test immediately.
-    // If 'OTP_TEST_MODE' is 'false', we use a real random 6-digit code.
-    const isTestMode = process.env.OTP_TEST_MODE === 'true';
-    const otp = isTestMode ? '000000' : crypto.randomInt(100000, 999999).toString();
-    
+    const otp = crypto.randomInt(100000, 999999).toString();
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
     await OTP.create({ phone, otp: hashedOtp, purpose, expiresAt });
 
-    // Skip API if in non-production or if we just want to test registration
+    // Skip API if in non-production
     if (process.env.NODE_ENV !== 'production') {
       logger.info(`[DEV OTP] ${phone} → ${otp}`);
       return { success: true, message: 'OTP logged to console' };
@@ -65,6 +45,7 @@ const sendOTP = async (phone, purpose = 'register') => {
         otp,
         otp_length: 6,
         otp_expiry: OTP_EXPIRY_MINUTES,
+        whatsapp: 1, // 🚀 FORCE WHATSAPP CHANNEL
       },
       { headers: { 'Content-Type': 'application/json' }, timeout: 8000 }
     );
