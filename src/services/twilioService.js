@@ -47,11 +47,6 @@ const sendOTP = async (phone, purpose = 'register') => {
 
     // Dev — skip API
     if (process.env.NODE_ENV !== 'production') {
-      // 🏆 DEVELOPMENT WORKAROUND:
-      // Since SMS delivery depends on DLT registration (which takes 2-3 days),
-      // you can now use Code "000000" on your phone to register right now!
-      otp = '000000';
-      logger.info(`[DEV OTP] ${phone} → ${otp} (${purpose})`);
       return { success: true, message: 'OTP logged to console (dev mode)' };
     }
 
