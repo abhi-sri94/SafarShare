@@ -15,7 +15,7 @@ services:
       - key: JWT_SECRET
         value: safarshare_jwt_secret_change_this_before_production
       - key: MSG91_AUTH_KEY
-        value: 462793As4gVnFcw68bfc04eP1
+        value: 462793ANWxhhvUbfxr69be35afP1
       - key: MSG91_OTP_TEMPLATE_ID
         value: 69b90a681dee2927e60619d2
       - key: MSG91_SENDER_ID

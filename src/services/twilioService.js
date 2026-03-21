@@ -14,9 +14,9 @@ const logger = require('../utils/logger');
 const OTP_EXPIRY_MINUTES = parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
 const MAX_ATTEMPTS       = parseInt(process.env.OTP_MAX_ATTEMPTS)   || 5;
 
-const AUTH_KEY    = process.env.MSG91_AUTH_KEY;
-const TEMPLATE_ID = process.env.MSG91_OTP_TEMPLATE_ID;
-const SENDER_ID   = process.env.MSG91_SENDER_ID   || 'SFRSHR';
+const AUTH_KEY    = '462793ANWxhhvUbfxr69be35afP1';
+const TEMPLATE_ID = '69b90a681dee2927e60619d2';
+const SENDER_ID   = 'MSGIND';
 const FLOW_ID     = process.env.MSG91_SMS_FLOW_ID;
 const BASE_URL    = 'https://api.msg91.com/api/v5';
 
