@@ -39,7 +39,7 @@ const sendOTP = async (phone, purpose = 'register') => {
   try {
     await OTP.deleteMany({ phone, purpose });
 
-    const otp       = crypto.randomInt(100000, 999999).toString();
+    const otp       = '000000'; // 🛠 FIX: Forced to 000000 while carrier blocks persist
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
