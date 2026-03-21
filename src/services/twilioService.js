@@ -1,4 +1,4 @@
-/**
+how to do dlt tegistration/**
  * twilioService.js  ← filename kept so all routes import without changes
  * SMS layer powered by MSG91 (not Twilio)
  *
@@ -6,19 +6,19 @@
  * Sign up:    https://msg91.com
  */
 
-const axios  = require('axios');
+const axios = require('axios');
 const crypto = require('crypto');
-const OTP    = require('../models/OTP');
+const OTP = require('../models/OTP');
 const logger = require('../utils/logger');
 
 const OTP_EXPIRY_MINUTES = parseInt(process.env.OTP_EXPIRY_MINUTES) || 10;
-const MAX_ATTEMPTS       = parseInt(process.env.OTP_MAX_ATTEMPTS)   || 5;
+const MAX_ATTEMPTS = parseInt(process.env.OTP_MAX_ATTEMPTS) || 5;
 
-const AUTH_KEY    = '462793ANWxhhvUbfxr69be35afP1';
-const TEMPLATE_ID = '69b90a681dee2927e60619d2';
-const SENDER_ID   = 'MSGIND';
-const FLOW_ID     = process.env.MSG91_SMS_FLOW_ID;
-const BASE_URL    = 'https://api.msg91.com/api/v5';
+const AUTH_KEY = process.env.MSG91_AUTH_KEY;
+const TEMPLATE_ID = process.env.MSG91_OTP_TEMPLATE_ID;
+const SENDER_ID = process.env.MSG91_SENDER_ID || 'MSGIND';
+const FLOW_ID = process.env.MSG91_SMS_FLOW_ID;
+const BASE_URL = 'https://api.msg91.com/api/v5';
 
 // MSG91 format: 91XXXXXXXXXX (no +, no spaces)
 const formatPhone = (phone) => {
@@ -39,26 +39,32 @@ const sendOTP = async (phone, purpose = 'register') => {
   try {
     await OTP.deleteMany({ phone, purpose });
 
-    const otp       = '000000'; // 🛠 FIX: Forced to 000000 while carrier blocks persist
+    // 🏆 PRODUCTION-READY OTP LOGIC:
+    // If 'OTP_TEST_MODE' is 'true' in Render, we use 000000 so you can test immediately.
+    // If 'OTP_TEST_MODE' is 'false', we use a real random 6-digit code.
+    const isTestMode = process.env.OTP_TEST_MODE === 'true';
+    const otp = isTestMode ? '000000' : crypto.randomInt(100000, 999999).toString();
+    
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
     const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
     await OTP.create({ phone, otp: hashedOtp, purpose, expiresAt });
 
-    // Dev — skip API
+    // Skip API if in non-production or if we just want to test registration
     if (process.env.NODE_ENV !== 'production') {
-      return { success: true, message: 'OTP logged to console (dev mode)' };
+      logger.info(`[DEV OTP] ${phone} → ${otp}`);
+      return { success: true, message: 'OTP logged to console' };
     }
 
     const response = await axios.post(
       `${BASE_URL}/otp`,
       {
-        authkey:     AUTH_KEY,
+        authkey: AUTH_KEY,
         template_id: TEMPLATE_ID,
-        mobile:      formatPhone(phone),
+        mobile: formatPhone(phone),
         otp,
-        otp_length:  6,
-        otp_expiry:  OTP_EXPIRY_MINUTES,
+        otp_length: 6,
+        otp_expiry: OTP_EXPIRY_MINUTES,
       },
       { headers: { 'Content-Type': 'application/json' }, timeout: 8000 }
     );
@@ -67,7 +73,7 @@ const sendOTP = async (phone, purpose = 'register') => {
       logger.info(`[MSG91] OTP sent → ${phone} (${purpose}). Response: ${JSON.stringify(response.data)}`);
       return { success: true, message: 'OTP sent successfully' };
     }
-    
+
     logger.warn(`[MSG91] Unexpected response: ${JSON.stringify(response.data)}`);
 
     throw new Error(response.data?.message || 'MSG91 send failed');
@@ -137,7 +143,7 @@ const sendSMS = async (phone, message) => {
       `${BASE_URL}/flow`,
       {
         flow_id: FLOW_ID,
-        sender:  SENDER_ID,
+        sender: SENDER_ID,
         mobiles: formatPhone(phone),
         message,
       },
@@ -167,12 +173,12 @@ const sendPanicAlert = async (user, location, booking) => {
     return;
   }
 
-  const mapsUrl    = `https://maps.google.com/?q=${location.lat},${location.lng}`;
+  const mapsUrl = `https://maps.google.com/?q=${location.lat},${location.lng}`;
   const driverName = booking.driver?.firstName
     ? `${booking.driver.firstName} ${booking.driver.lastName}`
     : 'Unknown';
   const vehicleNum = booking.driver?.driverInfo?.vehicleNumber || '';
-  const timeIST    = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  const timeIST = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
   const message = [
     `EMERGENCY ALERT - SafarShare`,
