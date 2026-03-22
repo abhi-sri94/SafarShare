@@ -5,3 +5,5 @@ node_modules/
 !package.json
 !package-lock.json
 !railway.json
+node_modules
+safarshare-439f3-firebase-adminsdk-fbsvc-6ed7066063

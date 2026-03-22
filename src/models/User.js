@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   phone:       { type: String, required: true, unique: true, trim: true },
   email:       { type: String, required: true, unique: true, lowercase: true, trim: true },
   password:    { type: String, required: true, minlength: 8, select: false },
+  firebaseUid: { type: String, unique: true, sparse: true }, // For Firebase Auth linkage
   role:        { type: String, enum: ['passenger', 'driver', 'both', 'admin'], default: 'passenger' },
   activeRole:  { type: String, enum: ['passenger', 'driver'], default: 'passenger' },
 

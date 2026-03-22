@@ -52,7 +52,60 @@ router.post('/send-otp', [
   }
 });
 
-// ── POST /api/auth/register ────────────────────────────────────────────────
+const { admin } = require('../services/firebaseService'); // Import the initialized admin
+
+// ... (existing code) ...
+
+// ── POST /api/auth/register-firebase ────────────────────────────────────────
+router.post('/register-firebase', [
+  body('firstName').trim().isLength({ min: 2, max: 50 }),
+  body('lastName').trim().isLength({ min: 1, max: 50 }),
+  body('email').isEmail().normalizeEmail(),
+  body('password').isLength({ min: 8 }),
+  body('firebaseToken').notEmpty().withMessage('Firebase token is required'),
+  body('role').isIn(['passenger', 'driver', 'both']),
+  body('city').notEmpty(),
+], async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
+
+  try {
+    const { firstName, lastName, email, password, firebaseToken, role, city, vehicleModel, vehicleNumber } = req.body;
+
+    // 1. Verify Firebase Token
+    const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+    const phone = decodedToken.phone_number;
+
+    if (!phone) return next(new AppError('Invalid Firebase token: no phone number found', 400));
+
+    // 2. Check duplicates
+    const existing = await User.findOne({ $or: [{ phone }, { email }] });
+    if (existing) {
+      const field = existing.phone === phone ? 'phone number' : 'email';
+      return next(new AppError(`This ${field} is already registered.`, 409));
+    }
+
+    // 3. Create user
+    const userData = { 
+      firstName, lastName, phone, email, password, role, city, 
+      isPhoneVerified: true,
+      firebaseUid: decodedToken.uid 
+    };
+
+    if ((role === 'driver' || role === 'both') && vehicleModel) {
+      userData.driverInfo = { vehicleModel, vehicleNumber };
+    }
+
+    const user = await User.create(userData);
+    logger.info(`New Firebase user registered: ${user._id}`);
+    sendTokens(user, 201, res);
+  } catch (error) {
+    logger.error('Firebase Register Error:', error.message);
+    next(new AppError('Failed to verify phone number with Google. Please try again.', 401));
+  }
+});
+
+// ── POST /api/auth/register (Keep for non-Firebase if needed, or deprecate) ─
 router.post('/register', [
   body('firstName').trim().isLength({ min: 2, max: 50 }).withMessage('First name must be 2-50 characters'),
   body('lastName').trim().isLength({ min: 1, max: 50 }).withMessage('Last name required'),
@@ -123,7 +176,45 @@ router.post('/login', [
   }
 });
 
-// ── POST /api/auth/login-otp ──────────────────────────────────────────────
+// ── POST /api/auth/login-firebase ───────────────────────────────────────────
+router.post('/login-firebase', [
+  body('firebaseToken').notEmpty().withMessage('Firebase token is required'),
+], async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
+
+  try {
+    const { firebaseToken, fcmToken } = req.body;
+
+    // 1. Verify Firebase Token
+    const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+    const phone = decodedToken.phone_number;
+
+    if (!phone) return next(new AppError('Invalid Firebase token: no phone number found', 400));
+
+    // 2. Find User
+    const user = await User.findOne({ phone });
+    if (!user) return next(new AppError('No account found with this number. Please register.', 404));
+    if (user.isBanned) return next(new AppError('Your account has been suspended.', 403));
+
+    // 3. Update FCM token if provided
+    if (fcmToken) await User.findByIdAndUpdate(user._id, { fcmToken });
+
+    // 4. Update firebaseUid if not present
+    if (!user.firebaseUid) {
+      user.firebaseUid = decodedToken.uid;
+      await user.save();
+    }
+
+    logger.info(`User logged in via Firebase: ${user._id}`);
+    sendTokens(user, 200, res);
+  } catch (error) {
+    logger.error('Firebase Login Error:', error.message);
+    next(new AppError('Failed to verify phone number with Google. Please try again.', 401));
+  }
+});
+
+// ── POST /api/auth/login-otp (Keep for backward compatibility) ─────────────
 router.post('/login-otp', [
   body('phone').matches(/^\+91[6-9]\d{9}$/).withMessage('Valid Indian mobile required'),
   body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),

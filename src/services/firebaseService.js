@@ -109,6 +109,7 @@ const notifyDriverApproved = async (driver) => {
 };
 
 module.exports = {
+  admin, // Export for auth verification
   sendPush, sendMulticast,
   notifyBookingConfirmed, notifyRideStarted, notifyRideCompleted,
   notifyBookingCancelled, notifyPanicAlert, notifyNewMessage, notifyDriverApproved,

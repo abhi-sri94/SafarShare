@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Use deployed backend over HTTPS to avoid mixed-content / network issues.
-export const BASE_URL = 'https://safarshare-production.up.railway.app/api';
+export const BASE_URL = 'https://safarshare.onrender.com/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
