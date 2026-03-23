@@ -3,9 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authAPI, usersAPI } from '../services/api';
 
 // ── Async thunks ──────────────────────────────────────────────────────────
-export const loginThunk = createAsyncThunk('auth/login', async ({ phone, password }, { rejectWithValue }) => {
+export const loginFirebaseThunk = createAsyncThunk('auth/loginFirebase', async ({ firebaseToken, fcmToken }, { rejectWithValue }) => {
   try {
-    const data = await authAPI.login(phone, password);
+    const data = await authAPI.loginFirebase(firebaseToken, fcmToken);
     await AsyncStorage.multiSet([
       ['ss_token', data.token],
       ['ss_refresh', data.refreshToken],
@@ -15,21 +15,9 @@ export const loginThunk = createAsyncThunk('auth/login', async ({ phone, passwor
   } catch (e) { return rejectWithValue(e.message); }
 });
 
-export const loginOTPThunk = createAsyncThunk('auth/loginOTP', async ({ phone, otp }, { rejectWithValue }) => {
+export const registerFirebaseThunk = createAsyncThunk('auth/registerFirebase', async (formData, { rejectWithValue }) => {
   try {
-    const data = await authAPI.loginOTP(phone, otp);
-    await AsyncStorage.multiSet([
-      ['ss_token', data.token],
-      ['ss_refresh', data.refreshToken],
-      ['ss_user', JSON.stringify(data.data.user)],
-    ]);
-    return data.data.user;
-  } catch (e) { return rejectWithValue(e.message); }
-});
-
-export const registerThunk = createAsyncThunk('auth/register', async (formData, { rejectWithValue }) => {
-  try {
-    const data = await authAPI.register(formData);
+    const data = await authAPI.registerFirebase(formData);
     await AsyncStorage.multiSet([
       ['ss_token', data.token],
       ['ss_refresh', data.refreshToken],
@@ -84,15 +72,12 @@ const authSlice = createSlice({
     };
 
     builder
-      .addCase(loginThunk.pending, setLoading)
-      .addCase(loginThunk.fulfilled, setUser)
-      .addCase(loginThunk.rejected, setError)
-      .addCase(loginOTPThunk.pending, setLoading)
-      .addCase(loginOTPThunk.fulfilled, setUser)
-      .addCase(loginOTPThunk.rejected, setError)
-      .addCase(registerThunk.pending, setLoading)
-      .addCase(registerThunk.fulfilled, setUser)
-      .addCase(registerThunk.rejected, setError)
+      .addCase(loginFirebaseThunk.pending, setLoading)
+      .addCase(loginFirebaseThunk.fulfilled, setUser)
+      .addCase(loginFirebaseThunk.rejected, setError)
+      .addCase(registerFirebaseThunk.pending, setLoading)
+      .addCase(registerFirebaseThunk.fulfilled, setUser)
+      .addCase(registerFirebaseThunk.rejected, setError)
       .addCase(logoutThunk.fulfilled, (state) => {
         state.user = null; state.isLoggedIn = false;
         state.activeRole = 'passenger'; state.isBootstrapping = false;

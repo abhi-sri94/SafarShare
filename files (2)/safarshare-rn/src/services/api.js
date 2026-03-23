@@ -53,15 +53,11 @@ export default api;
 
 // ── Auth endpoints ────────────────────────────────────────────────────────
 export const authAPI = {
-  sendOTP:       (phone, purpose) => api.post('/auth/send-otp', { phone, purpose }),
-  register:      (data)           => api.post('/auth/register', data),
-  login:         (phone, password)=> api.post('/auth/login', { phone, password }),
-  loginOTP:      (phone, otp)     => api.post('/auth/login-otp', { phone, otp }),
-  refreshToken:  (token)          => api.post('/auth/refresh-token', { refreshToken: token }),
-  forgotPassword:(phone)          => api.post('/auth/forgot-password', { phone }),
-  resetPassword: (data)           => api.post('/auth/reset-password', data),
-  me:            ()               => api.get('/auth/me'),
-  logout:        ()               => api.post('/auth/logout'),
+  loginFirebase:    (firebaseToken, fcmToken) => api.post('/auth/login-firebase', { firebaseToken, fcmToken }),
+  registerFirebase: (data) => api.post('/auth/register-firebase', data),
+  refreshToken:     (token) => api.post('/auth/refresh-token', { refreshToken: token }),
+  me:               () => api.get('/auth/me'),
+  logout:           () => api.post('/auth/logout'),
 };
 
 // ── Ride endpoints ────────────────────────────────────────────────────────

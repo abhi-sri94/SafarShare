@@ -1271,6 +1271,80 @@
       color: var(--brand)
     }
 
+    /* ---- DRIVER ONBOARDING ---- */
+    #screen-driver-onboarding { background: var(--bg2); }
+    .onboarding-header {
+      padding: 54px 24px 24px;
+      background: linear-gradient(180deg, #0d3322 0%, #0a2419 100%);
+      color: #fff;
+    }
+    .onboarding-title { font-family: 'Clash Display', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+    .onboarding-sub { font-size: 13px; color: rgba(255,255,255,0.5); }
+    
+    .onboarding-steps {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .ob-step {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      flex: 1; position: relative;
+    }
+    .ob-step-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--bg2); color: var(--muted);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid transparent;
+      transition: all .3s;
+    }
+    .ob-step.active .ob-step-num { background: var(--brand); color: #fff; }
+    .ob-step.done .ob-step-num { background: #4ade80; color: #fff; }
+    .ob-step-label { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; }
+    .ob-step.active .ob-step-label { color: var(--brand); }
+    
+    .ob-form-card {
+      padding: 24px; margin: 16px; 
+      background: var(--surface); border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+    }
+    .ob-form-card.active { display: block; animation: slideIn .4s ease; }
+    
+    .ob-upload-box {
+      border: 2px dashed var(--border); border-radius: 14px;
+      padding: 32px 16px; text-align: center;
+      cursor: pointer; transition: all .2s;
+      background: var(--bg); margin-bottom: 12px;
+      position: relative;
+    }
+    .ob-upload-box:hover { border-color: var(--brand); background: var(--brand-light); }
+    .ob-upload-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+    .ob-upload-text { font-size: 14px; font-weight: 600; color: var(--text); }
+    .ob-upload-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    
+    .ob-preview {
+      width: 100%; height: 160px; border-radius: 12px;
+      object-fit: cover; margin-top: 12px; display: none;
+    }
+    .ob-preview.show { display: block; }
+    
+    .ob-footer {
+      position: sticky; bottom: 0; padding: 24px;
+      background: linear-gradient(0deg, var(--bg2) 60%, transparent);
+      display: flex; gap: 12px;
+    }
+    .ob-btn {
+      flex: 1; padding: 16px; border-radius: 14px;
+      font-size: 15px; font-weight: 600; border: none; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: all .2s;
+    }
+    .ob-btn-back { background: var(--surface); color: var(--text); border: 1.5px solid var(--border); }
+    .ob-btn-next { background: var(--brand); color: #fff; box-shadow: 0 4px 12px rgba(15,92,58,0.3); }
+
     /* ---- PROFILE ---- */
     #screen-profile {
       background: var(--bg)
@@ -3742,6 +3816,131 @@
         <div style="height:40px"></div>
       </div>
 
+      <!-- ══════════ DRIVER ONBOARDING ══════════ -->
+      <div class="screen" id="screen-driver-onboarding">
+        <div class="onboarding-header">
+          <div class="auth-back" onclick="goBack()" style="background:rgba(255,255,255,0.08)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"
+              stroke-linecap="round">
+              <path d="M10 3L5 8l5 5" />
+            </svg>
+          </div>
+          <div class="onboarding-title">Become a Driver</div>
+          <div class="onboarding-sub">Complete 4 simple steps to start earning</div>
+        </div>
+
+        <div class="onboarding-steps">
+          <div class="ob-step active" id="ob-step-1">
+            <div class="ob-step-num">1</div>
+            <div class="ob-step-label">Vehicle</div>
+          </div>
+          <div class="ob-step" id="ob-step-2">
+            <div class="ob-step-num">2</div>
+            <div class="ob-step-label">Aadhaar</div>
+          </div>
+          <div class="ob-step" id="ob-step-3">
+            <div class="ob-step-num">3</div>
+            <div class="ob-step-label">License</div>
+          </div>
+          <div class="ob-step" id="ob-step-4">
+            <div class="ob-step-num">4</div>
+            <div class="ob-step-label">RC</div>
+          </div>
+        </div>
+
+        <div class="ob-form-container" id="ob-form-container">
+          <!-- Step 1: Vehicle -->
+          <div class="ob-form-card active" id="ob-card-1">
+            <div class="field-group">
+              <label class="field-label">Vehicle Model</label>
+              <input type="text" class="field-input" id="ob-v-model" placeholder="e.g. Maruti Suzuki Swift">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Vehicle Number</label>
+              <input type="text" class="field-input" id="ob-v-number" placeholder="e.g. UP32AB1234" style="text-transform:uppercase">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Vehicle Color</label>
+              <input type="text" class="field-input" id="ob-v-color" placeholder="e.g. White">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Vehicle Type</label>
+              <select class="field-input" id="ob-v-type">
+                <option value="hatchback">Hatchback</option>
+                <option value="sedan">Sedan</option>
+                <option value="suv">SUV</option>
+                <option value="mpv">MPV</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Aadhaar -->
+          <div class="ob-form-card" id="ob-card-2">
+            <div class="field-group">
+              <label class="field-label">Aadhaar Number</label>
+              <input type="number" class="field-input" id="ob-aadhaar-num" placeholder="12-digit Aadhaar number">
+            </div>
+            <label class="field-label">Upload Aadhaar Photo</label>
+            <div class="ob-upload-box" onclick="document.getElementById('file-aadhaar').click()">
+              <input type="file" id="file-aadhaar" hidden onchange="previewFile(this, 'prev-aadhaar')">
+              <span class="ob-upload-icon">🆔</span>
+              <span class="ob-upload-text">Select Document</span>
+              <span class="ob-upload-sub">Front side clear photo (Max 5MB)</span>
+              <img id="prev-aadhaar" class="ob-preview">
+            </div>
+          </div>
+
+          <!-- Step 3: License -->
+          <div class="ob-form-card" id="ob-card-3">
+            <div class="field-group">
+              <label class="field-label">License Number</label>
+              <input type="text" class="field-input" id="ob-license-num" placeholder="DL-1234567890">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Expiry Date</label>
+              <input type="date" class="field-input" id="ob-license-expiry">
+            </div>
+            <label class="field-label">Upload Driving License</label>
+            <div class="ob-upload-box" onclick="document.getElementById('file-license').click()">
+              <input type="file" id="file-license" hidden onchange="previewFile(this, 'prev-license')">
+              <span class="ob-upload-icon">🪪</span>
+              <span class="ob-upload-text">Select Document</span>
+              <span class="ob-upload-sub">Original license photo (Max 5MB)</span>
+              <img id="prev-license" class="ob-preview">
+            </div>
+          </div>
+
+          <!-- Step 4: RC -->
+          <div class="ob-form-card" id="ob-card-4">
+            <div class="field-group">
+              <label class="field-label">RC Number</label>
+              <input type="text" class="field-input" id="ob-rc-num" placeholder="Registration Certificate Number">
+            </div>
+            <label class="field-label">Upload RC & Insurance</label>
+            <div class="ob-upload-box" onclick="document.getElementById('file-rc').click()">
+              <input type="file" id="file-rc" hidden onchange="previewFile(this, 'prev-rc')">
+              <span class="ob-upload-icon">📄</span>
+              <span class="ob-upload-text">Select RC Photo</span>
+              <span class="ob-upload-sub">Vehicle Registration photo</span>
+              <img id="prev-rc" class="ob-preview">
+            </div>
+            <div class="ob-upload-box" onclick="document.getElementById('file-insurance').click()" style="margin-top:12px">
+              <input type="file" id="file-insurance" hidden onchange="previewFile(this, 'prev-ins')">
+              <span class="ob-upload-icon">🛡️</span>
+              <span class="ob-upload-text">Select Insurance</span>
+              <span class="ob-upload-sub">Current insurance policy photo</span>
+              <img id="prev-ins" class="ob-preview">
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-footer">
+          <button class="ob-btn ob-btn-back" id="ob-btn-back" onclick="prevOnboardingStep()" style="display:none">Back</button>
+          <button class="ob-btn ob-btn-next" id="ob-btn-next" onclick="nextOnboardingStep()">Next Step</button>
+        </div>
+        <div style="height:40px"></div>
+      </div>
+
       <!-- ══════════ SUCCESS ══════════ -->
       <div class="screen" id="screen-success">
         <div class="success-icon">✓</div>
@@ -4051,7 +4250,10 @@
     };
 
     async function api(path, options = {}) {
-      const headers = { 'Content-Type': 'application/json', ...options.headers };
+      const headers = { ...options.headers };
+      if (!(options.body instanceof FormData)) {
+        if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
+      }
       if (appState.token) headers['Authorization'] = 'Bearer ' + appState.token;
       let res;
       try { res = await fetch(BASE_URL + path, { ...options, headers }); }
@@ -4369,6 +4571,7 @@
     // USER UI UPDATE
     // ═══════════════════════════════════════
     function updateUserUI(name, phone) {
+      const u = appState.user || {};
       const first = name.split(' ')[0];
       const init = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
       document.getElementById('home-user-name').textContent = first + ' 👋';
@@ -4377,6 +4580,16 @@
       document.getElementById('profile-display-name').textContent = name;
       document.getElementById('profile-phone-display').textContent = phone || '+91 XXXXX XXXXX';
       document.getElementById('profile-av-text').textContent = init;
+
+      // Badges
+      const badges = document.querySelector('.profile-badges');
+      if (badges) {
+        let html = '';
+        if (u.isPhoneVerified) html += '<span class="p-badge pb-green">✓ Verified</span>';
+        if (u.isDriverApproved) html += '<span class="p-badge pb-green">🚗 Driver Verified</span>';
+        else if (u.driverInfo && u.driverInfo.licenseDoc) html += '<span class="p-badge pb-amber">⌛ Pending Approval</span>';
+        badges.innerHTML = html;
+      }
     }
 
     // ═══════════════════════════════════════
@@ -4617,13 +4830,119 @@
     }
 
     // ═══════════════════════════════════════
-    // ROLE SWITCH
+    // DRIVER ONBOARDING LOGIC
+    // ═══════════════════════════════════════
+    let obStep = 1;
+    function previewFile(input, imgId) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.getElementById(imgId);
+          img.src = e.target.result;
+          img.classList.add('show');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function updateStepUI() {
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById('ob-step-' + i).classList.toggle('active', i === obStep);
+        document.getElementById('ob-step-' + i).classList.toggle('done', i < obStep);
+        document.getElementById('ob-card-' + i).classList.toggle('active', i === obStep);
+      }
+      document.getElementById('ob-btn-back').style.display = obStep === 1 ? 'none' : 'block';
+      document.getElementById('ob-btn-next').textContent = obStep === 4 ? 'Submit Application' : 'Next Step';
+    }
+
+    function prevOnboardingStep() {
+      if (obStep > 1) { obStep--; updateStepUI(); }
+    }
+
+    async function nextOnboardingStep() {
+      if (obStep < 4) {
+        // Validation for Step 1
+        if (obStep === 1) {
+          if (!document.getElementById('ob-v-model').value || !document.getElementById('ob-v-number').value) {
+            showToast('Please fill vehicle details'); return;
+          }
+        }
+        obStep++;
+        updateStepUI();
+      } else {
+        await submitDriverOnboarding();
+      }
+    }
+
+    async function submitDriverOnboarding() {
+      const btn = document.getElementById('ob-btn-next');
+      btn.disabled = true;
+      btn.textContent = 'Uploading...';
+      
+      try {
+        // 1. Submit Vehicle Info
+        const vehicleData = {
+          vehicleModel: document.getElementById('ob-v-model').value,
+          vehicleNumber: document.getElementById('ob-v-number').value,
+          vehicleColor: document.getElementById('ob-v-color').value,
+          vehicleType: document.getElementById('ob-v-type').value
+        };
+        await api('/users/driver-info', { method: 'PATCH', body: JSON.stringify(vehicleData) });
+
+        // 2. Upload Documents
+        const docs = [
+          { id: 'file-aadhaar', type: 'aadhaar', num: document.getElementById('ob-aadhaar-num').value },
+          { id: 'file-license', type: 'license', num: document.getElementById('ob-license-num').value },
+          { id: 'file-rc', type: 'rc', num: document.getElementById('ob-rc-num').value },
+          { id: 'file-insurance', type: 'insurance' }
+        ];
+
+        for (const doc of docs) {
+          const fileInput = document.getElementById(doc.id);
+          if (fileInput.files && fileInput.files[0]) {
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+            formData.append('docType', doc.type);
+            if (doc.num) formData.append('docNumber', doc.num);
+            
+            await api('/users/upload-document', {
+              method: 'POST',
+              body: formData
+            });
+          }
+        }
+
+        showToast('Application submitted! Pending admin approval. ✅');
+        appState.user.isDriverApproved = false; // Just to be sure
+        localStorage.setItem('ss_user', JSON.stringify(appState.user));
+        setTimeout(() => goTo('screen-profile'), 1500);
+      } catch (e) {
+        showToast('Error uploading: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+      }
+    }
+
     // ═══════════════════════════════════════
     async function switchRole(role) {
+      if (role === 'driver' && !appState.user.isDriverApproved) {
+        // Check if onboarding is needed
+        if (!appState.user.driverInfo || !appState.user.driverInfo.licenseDoc) {
+          obStep = 1; updateStepUI();
+          goTo('screen-driver-onboarding');
+          return;
+        }
+      }
+
       try {
         await api('/users/switch-role', { method: 'PATCH', body: JSON.stringify({ role }) });
       } catch (e) {
-        if (e.message.includes('pending')) { showToast('Driver account pending admin approval'); return; }
+        if (e.message.includes('pending')) { 
+          showToast('Driver account pending admin approval'); 
+          // Highlight that it's pending in the UI
+          return; 
+        }
       }
       appState.role = role;
       if (appState.user) { appState.user.activeRole = role; localStorage.setItem('ss_user', JSON.stringify(appState.user)); }
