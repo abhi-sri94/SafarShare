@@ -199,6 +199,26 @@ router.post('/login-firebase', [
         user = await User.findOne({ email });
     }
 
+    // 3. Auto-Register if it's a Google/Social login and user doesn't exist
+    if (!user && email) {
+      const names = (decodedToken.name || 'Safar User').split(' ');
+      const firstName = names[0];
+      const lastName = names.slice(1).join(' ') || 'Share';
+      
+      const userData = {
+        firstName, lastName, email,
+        phone: phone || `+00${Date.now()}`, // Placeholder phone if missing
+        password: Math.random().toString(36).slice(-10), // Random pass
+        role: 'passenger',
+        city: 'Lucknow', // Default city
+        isPhoneVerified: !!phone,
+        firebaseUid: decodedToken.uid
+      };
+      
+      user = await User.create(userData);
+      logger.info(`New Google user auto-registered: ${user._id}`);
+    }
+
     if (!user) return next(new AppError('No account found. Please register.', 404));
     if (user.isBanned) return next(new AppError('Your account has been suspended.', 403));
 
