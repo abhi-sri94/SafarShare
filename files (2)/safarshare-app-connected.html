@@ -4333,8 +4333,26 @@
       } catch (e) { showToast(e.message); }
       finally { if (btn) { btn.innerHTML = 'Verify & Continue'; btn.classList.remove('loading'); } }
     }
-    function googleLogin() {
-      showToast('Google login requires the mobile app. Use phone login here.');
+    async function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await firebase.auth().signInWithPopup(provider);
+        const idToken = await result.user.getIdToken();
+        showToast('Google login successful ✓');
+        
+        // Call backend
+        const data = await api('/auth/login-firebase', { 
+          method: 'POST', 
+          body: JSON.stringify({ firebaseToken: idToken }) 
+        });
+        saveAuth(data.token, data.refreshToken, data.data.user);
+        updateUserUI(data.data.user.firstName + ' ' + data.data.user.lastName, data.data.user.phone);
+        loadSocket();
+        goTo(appState.role === 'driver' ? 'screen-driver' : 'screen-home');
+        showToast('Welcome, ' + data.data.user.firstName + '! 👋');
+      } catch (e) {
+        showToast('Google/Firebase Error: ' + e.message);
+      }
     }
     async function doLogout() {
       try { await api('/auth/logout', { method: 'POST' }); } catch (e) { }

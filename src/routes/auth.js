@@ -189,28 +189,35 @@ router.post('/login-firebase', [
     // 1. Verify Firebase Token
     const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
     const phone = decodedToken.phone_number;
+    const email = decodedToken.email;
 
-    if (!phone) return next(new AppError('Invalid Firebase token: no phone number found', 400));
+    // 2. Find User (by phone or email)
+    let user;
+    if (phone) {
+        user = await User.findOne({ phone });
+    } else if (email) {
+        user = await User.findOne({ email });
+    }
 
-    // 2. Find User
-    const user = await User.findOne({ phone });
-    if (!user) return next(new AppError('No account found with this number. Please register.', 404));
+    if (!user) return next(new AppError('No account found. Please register.', 404));
     if (user.isBanned) return next(new AppError('Your account has been suspended.', 403));
 
     // 3. Update FCM token if provided
     if (fcmToken) await User.findByIdAndUpdate(user._id, { fcmToken });
 
-    // 4. Update firebaseUid if not present
+    // 4. Link Firebase UID if missing
     if (!user.firebaseUid) {
       user.firebaseUid = decodedToken.uid;
+      // Also update phone if it was a Google login and we found by email
+      if (phone && !user.phone) user.phone = phone; 
       await user.save();
     }
 
-    logger.info(`User logged in via Firebase: ${user._id}`);
+    logger.info(`User logged in via Firebase: ${user._id} (${phone ? 'phone' : 'google'})`);
     sendTokens(user, 200, res);
   } catch (error) {
     logger.error('Firebase Login Error:', error.message);
-    next(new AppError('Failed to verify phone number with Google. Please try again.', 401));
+    next(new AppError('Authentication failed. Please try again.', 401));
   }
 });
 
