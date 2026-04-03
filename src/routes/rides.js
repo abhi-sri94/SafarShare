@@ -1,7 +1,6 @@
 const express = require('express');
 const { body, query, validationResult } = require('express-validator');
-const Ride = require('../models/Ride');
-const Booking = require('../models/Booking');
+const supabase = require('../config/supabase');
 const { protect, requireDriverApproval } = require('../middleware/auth');
 const { geocodeAddress, getDistanceAndDuration, getRoutePolyline } = require('../services/mapsService');
 const { sendSMS } = require('../services/twilioService');
@@ -12,10 +11,9 @@ const router = express.Router();
 
 // ── GET /api/rides/search ─────────────────────────────────────────────────
 router.get('/search', [
-  query('from').notEmpty().withMessage('From city required'),
-  query('to').notEmpty().withMessage('To city required'),
-  query('date').isISO8601().withMessage('Valid date required (YYYY-MM-DD)'),
-  query('seats').optional().isInt({ min: 1, max: 6 }).withMessage('Seats must be 1-6'),
+  query('from').notEmpty(),
+  query('to').notEmpty(),
+  query('date').isISO8601(),
 ], async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
@@ -23,33 +21,37 @@ router.get('/search', [
   try {
     const { from, to, date, seats = 1, womenOnly, maxPrice, minPrice } = req.query;
 
-    // Build date range for the day
     const searchDate = new Date(date);
     const nextDay = new Date(searchDate);
     nextDay.setDate(nextDay.getDate() + 1);
 
-    const filter = {
-      'origin.city': { $regex: new RegExp(from, 'i') },
-      'destination.city': { $regex: new RegExp(to, 'i') },
-      departureTime: { $gte: searchDate, $lt: nextDay },
-      seatsAvailable: { $gte: parseInt(seats) },
-      status: 'scheduled',
-    };
+    let queryBuilder = supabase
+      .from('rides')
+      .select('*, driver:users(*)')
+      .eq('status', 'scheduled')
+      .gte('departure_time', searchDate.toISOString())
+      .lt('departure_time', nextDay.toISOString())
+      .gte('seats_available', parseInt(seats));
 
-    if (womenOnly === 'true') filter['preferences.womenOnly'] = true;
-    if (maxPrice) filter.pricePerSeat = { ...filter.pricePerSeat, $lte: parseInt(maxPrice) };
-    if (minPrice) filter.pricePerSeat = { ...filter.pricePerSeat, $gte: parseInt(minPrice) };
+    // JSONB filtering for city
+    queryBuilder = queryBuilder.filter('origin->>city', 'ilike', `%${from}%`);
+    queryBuilder = queryBuilder.filter('destination->>city', 'ilike', `%${to}%`);
 
-    const rides = await Ride.find(filter)
-      .populate('driver', 'firstName lastName profilePhoto driverRating driverInfo.vehicleModel driverInfo.vehicleNumber driverInfo.isOnline totalRides')
-      .sort({ pricePerSeat: 1, departureTime: 1 })
+    if (womenOnly === 'true') {
+      queryBuilder = queryBuilder.filter('preferences->>womenOnly', 'eq', 'true');
+    }
+
+    if (maxPrice) queryBuilder = queryBuilder.lte('price_per_seat', parseInt(maxPrice));
+    if (minPrice) queryBuilder = queryBuilder.gte('price_per_seat', parseInt(minPrice));
+
+    const { data: rides, error } = await queryBuilder
+      .order('price_per_seat', { ascending: true })
+      .order('departure_time', { ascending: true })
       .limit(50);
 
-    res.json({
-      success: true,
-      count: rides.length,
-      data: { rides },
-    });
+    if (error) throw error;
+
+    res.json({ success: true, count: rides.length, data: { rides } });
   } catch (error) {
     next(error);
   }
@@ -57,11 +59,11 @@ router.get('/search', [
 
 // ── POST /api/rides ────────────────────────────────────────────────────────
 router.post('/', protect, requireDriverApproval, [
-  body('originCity').notEmpty().withMessage('Pickup city required'),
-  body('destinationCity').notEmpty().withMessage('Destination city required'),
-  body('departureTime').isISO8601().withMessage('Valid departure time required'),
-  body('totalSeats').isInt({ min: 1, max: 6 }).withMessage('Seats must be 1-6'),
-  body('pricePerSeat').isInt({ min: 50, max: 5000 }).withMessage('Price must be ₹50-₹5000'),
+  body('originCity').notEmpty(),
+  body('destinationCity').notEmpty(),
+  body('departureTime').isISO8601(),
+  body('totalSeats').isInt({ min: 1, max: 6 }),
+  body('pricePerSeat').isInt({ min: 50, max: 5000 }),
 ], async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
@@ -69,58 +71,47 @@ router.post('/', protect, requireDriverApproval, [
   try {
     const { originCity, originAddress, destinationCity, destinationAddress, departureTime, totalSeats, pricePerSeat, stops, preferences, notes } = req.body;
 
-    // Get coordinates
     const [originCoords, destCoords] = await Promise.all([
       geocodeAddress(originAddress || originCity),
       geocodeAddress(destinationAddress || destinationCity),
     ]);
 
-    // Get distance & duration
     const { distanceKm, durationMinutes } = await getDistanceAndDuration(
       { lat: originCoords.lat, lng: originCoords.lng },
       { lat: destCoords.lat, lng: destCoords.lng }
     );
 
-    // Get route polyline
     const { polyline } = await getRoutePolyline(
       { lat: originCoords.lat, lng: originCoords.lng },
       { lat: destCoords.lat, lng: destCoords.lng }
     );
 
-    // Estimated arrival
     const departure = new Date(departureTime);
     const estimatedArrival = new Date(departure.getTime() + durationMinutes * 60 * 1000);
 
-    const ride = await Ride.create({
-      driver: req.user._id,
-      origin: {
-        city: originCity,
-        address: originAddress,
-        coordinates: { type: 'Point', coordinates: [originCoords.lng, originCoords.lat] },
-      },
-      destination: {
-        city: destinationCity,
-        address: destinationAddress,
-        coordinates: { type: 'Point', coordinates: [destCoords.lng, destCoords.lat] },
-      },
+    const rideData = {
+      driver_id: req.user.id,
+      origin: { city: originCity, address: originAddress, lng: originCoords.lng, lat: originCoords.lat },
+      destination: { city: destinationCity, address: destinationAddress, lng: destCoords.lng, lat: destCoords.lat },
       stops: stops || [],
-      departureTime: departure,
-      estimatedArrivalTime: estimatedArrival,
-      durationMinutes,
-      distanceKm,
-      totalSeats,
-      seatsAvailable: totalSeats,
-      pricePerSeat,
-      vehicleModel: req.user.driverInfo?.vehicleModel,
-      vehicleNumber: req.user.driverInfo?.vehicleNumber,
+      departure_time: departure.toISOString(),
+      estimated_arrival_time: estimatedArrival.toISOString(),
+      duration_minutes: durationMinutes,
+      distance_km: distanceKm,
+      total_seats: totalSeats,
+      seats_available: totalSeats,
+      price_per_seat: pricePerSeat,
+      vehicle_model: req.user.driver_info?.vehicleModel,
+      vehicle_number: req.user.driver_info?.vehicleNumber,
       preferences: preferences || {},
-      routePolyline: polyline,
+      route_polyline: polyline,
       notes,
-    });
+    };
 
-    await ride.populate('driver', 'firstName lastName profilePhoto driverRating driverInfo');
-    logger.info(`New ride created: ${ride._id} by driver ${req.user._id}`);
+    const { data: ride, error } = await supabase.from('rides').insert(rideData).select('*, driver:users(*)').single();
+    if (error) throw error;
 
+    logger.info(`New ride created: ${ride.id} by driver ${req.user.id}`);
     res.status(201).json({ success: true, data: { ride } });
   } catch (error) {
     next(error);
@@ -130,10 +121,13 @@ router.post('/', protect, requireDriverApproval, [
 // ── GET /api/rides/:id ─────────────────────────────────────────────────────
 router.get('/:id', async (req, res, next) => {
   try {
-    const ride = await Ride.findById(req.params.id)
-      .populate('driver', 'firstName lastName profilePhoto driverRating driverInfo totalRides emergencyContacts');
+    const { data: ride, error } = await supabase
+      .from('rides')
+      .select('*, driver:users(*)')
+      .eq('id', req.params.id)
+      .single();
 
-    if (!ride) return next(new AppError('Ride not found.', 404));
+    if (error || !ride) return next(new AppError('Ride not found.', 404));
     res.json({ success: true, data: { ride } });
   } catch (error) {
     next(error);
@@ -144,16 +138,16 @@ router.get('/:id', async (req, res, next) => {
 router.get('/driver/my-rides', protect, async (req, res, next) => {
   try {
     const { status, page = 1, limit = 20 } = req.query;
-    const filter = { driver: req.user._id };
-    if (status) filter.status = status;
+    let queryBuilder = supabase.from('rides').select('*', { count: 'exact' }).eq('driver_id', req.user.id);
+    
+    if (status) queryBuilder = queryBuilder.eq('status', status);
 
-    const rides = await Ride.find(filter)
-      .sort({ departureTime: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+    const { data: rides, count, error } = await queryBuilder
+      .order('departure_time', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
 
-    const total = await Ride.countDocuments(filter);
-    res.json({ success: true, count: rides.length, total, data: { rides } });
+    if (error) throw error;
+    res.json({ success: true, count: rides.length, total: count, data: { rides } });
   } catch (error) {
     next(error);
   }
@@ -162,22 +156,24 @@ router.get('/driver/my-rides', protect, async (req, res, next) => {
 // ── PATCH /api/rides/:id/start ─────────────────────────────────────────────
 router.patch('/:id/start', protect, async (req, res, next) => {
   try {
-    const ride = await Ride.findById(req.params.id);
+    const { data: ride } = await supabase.from('rides').select('*').eq('id', req.params.id).single();
     if (!ride) return next(new AppError('Ride not found.', 404));
-    if (ride.driver.toString() !== req.user._id.toString()) return next(new AppError('Not authorized.', 403));
-    if (ride.status !== 'scheduled') return next(new AppError('Ride cannot be started in current status.', 400));
+    if (ride.driver_id !== req.user.id) return next(new AppError('Not authorized.', 403));
 
-    ride.status = 'in_progress';
-    await ride.save();
+    await supabase.from('rides').update({ status: 'in_progress', updated_at: new Date().toISOString() }).eq('id', req.params.id);
 
-    // Notify all passengers
-    const bookings = await Booking.find({ ride: ride._id, status: 'confirmed' })
-      .populate('passenger', 'firstName fcmToken phone');
+    const { data: bookings } = await supabase
+      .from('bookings')
+      .select('*, passenger:users(*)')
+      .eq('ride_id', ride.id)
+      .eq('status', 'confirmed');
 
-    const { notifyRideStarted } = require('../services/firebaseService');
-    await notifyRideStarted(bookings.map(b => b.passenger), bookings[0]);
+    if (bookings?.length > 0) {
+      const { notifyRideStarted } = require('../services/firebaseService');
+      await notifyRideStarted(bookings.map(b => b.passenger), bookings[0]);
+    }
 
-    res.json({ success: true, message: 'Ride started', data: { ride } });
+    res.json({ success: true, message: 'Ride started' });
   } catch (error) {
     next(error);
   }
@@ -186,118 +182,49 @@ router.patch('/:id/start', protect, async (req, res, next) => {
 // ── PATCH /api/rides/:id/complete ─────────────────────────────────────────
 router.patch('/:id/complete', protect, async (req, res, next) => {
   try {
-    const ride = await Ride.findById(req.params.id);
+    const { data: ride } = await supabase.from('rides').select('*').eq('id', req.params.id).single();
     if (!ride) return next(new AppError('Ride not found.', 404));
-    if (ride.driver.toString() !== req.user._id.toString()) return next(new AppError('Not authorized.', 403));
+    if (ride.driver_id !== req.user.id) return next(new AppError('Not authorized.', 403));
 
-    ride.status = 'completed';
-    await ride.save();
+    await supabase.from('rides').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', req.params.id);
 
-    // Complete all bookings + trigger payouts
-    const bookings = await Booking.find({ ride: ride._id, status: 'in_progress' })
-      .populate('passenger', 'firstName fcmToken')
-      .populate('driver', 'firstName fcmToken driverInfo');
+    const { data: bookings } = await supabase
+      .from('bookings')
+      .select('*, passenger:users(*), driver:users(*)')
+      .eq('ride_id', ride.id);
 
     const { notifyRideCompleted } = require('../services/firebaseService');
     const { payoutToDriver } = require('../services/razorpayService');
 
-    for (const booking of bookings) {
-      booking.status = 'completed';
-      booking.completedAt = new Date();
-      await booking.save();
-      await notifyRideCompleted(booking.passenger, booking.driver, booking);
-      await payoutToDriver(booking, booking.driver);
+    for (const booking of (bookings || [])) {
+      if (booking.status === 'in_progress' || booking.status === 'confirmed') {
+        await supabase.from('bookings').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', booking.id);
+        await notifyRideCompleted(booking.passenger, booking.driver, booking);
+        await payoutToDriver(booking, booking.driver);
+      }
     }
 
-    res.json({ success: true, message: 'Ride completed. Payouts processing.', data: { ride } });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// ── PATCH /api/rides/:id/cancel ────────────────────────────────────────────
-router.patch('/:id/cancel', protect, async (req, res, next) => {
-  try {
-    const { reason } = req.body;
-    const ride = await Ride.findById(req.params.id);
-    if (!ride) return next(new AppError('Ride not found.', 404));
-    if (ride.driver.toString() !== req.user._id.toString()) return next(new AppError('Not authorized.', 403));
-    if (!['scheduled', 'active'].includes(ride.status)) return next(new AppError('Cannot cancel this ride.', 400));
-
-    // Check cancellation window (penalty if within 12 hours)
-    const hoursUntilDeparture = (ride.departureTime - Date.now()) / (1000 * 60 * 60);
-    const isPenalty = hoursUntilDeparture < parseInt(process.env.CANCELLATION_PENALTY_HOURS);
-
-    ride.status = 'cancelled';
-    ride.cancelledBy = 'driver';
-    ride.cancelReason = reason || 'Driver cancelled';
-    ride.cancelledAt = new Date();
-    if (isPenalty) ride.penaltyApplied = true;
-    await ride.save();
-
-    // Refund all confirmed bookings
-    const bookings = await Booking.find({ ride: ride._id, status: 'confirmed' })
-      .populate('passenger', 'firstName fcmToken phone');
-
-    const { processRefund } = require('../services/razorpayService');
-    const { notifyBookingCancelled } = require('../services/firebaseService');
-
-    for (const booking of bookings) {
-      booking.status = 'cancelled';
-      booking.cancelledBy = 'driver';
-      booking.refundAmount = booking.totalAmount;
-      booking.refundStatus = 'pending';
-      await booking.save();
-      await notifyBookingCancelled(booking.passenger, booking, 'driver');
-      await sendSMS(booking.passenger.phone, `SafarShare: Your ride ${ride.origin.city} → ${ride.destination.city} was cancelled by the driver. Full refund of ₹${booking.totalAmount} will be processed within 24 hours.`);
-    }
-
-    logger.info(`Ride ${ride._id} cancelled by driver ${req.user._id}. Penalty: ${isPenalty}`);
-    res.json({ success: true, message: 'Ride cancelled. Passengers notified and refunds initiated.', penaltyApplied: isPenalty });
+    res.json({ success: true, message: 'Ride completed.' });
   } catch (error) {
     next(error);
   }
 });
 
 // ── PATCH /api/rides/:id/location ─────────────────────────────────────────
-// Called every 10s by driver app to update live location
 router.patch('/:id/location', protect, async (req, res, next) => {
   try {
     const { lat, lng } = req.body;
     if (!lat || !lng) return next(new AppError('lat and lng required.', 400));
 
-    await Ride.findByIdAndUpdate(req.params.id, {
-      currentLocation: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
-    });
+    await supabase.from('rides').update({ 
+      current_location: { lng: parseFloat(lng), lat: parseFloat(lat) },
+      updated_at: new Date().toISOString()
+    }).eq('id', req.params.id);
 
-    // Emit to Socket.io room
     const { getIO } = require('../socket/socket');
     getIO().to(`ride_${req.params.id}`).emit('location_update', { lat, lng, timestamp: new Date() });
 
     res.json({ success: true });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// ── GET /api/rides/nearby ─────────────────────────────────────────────────
-router.get('/nearby/drivers', async (req, res, next) => {
-  try {
-    const { lat, lng, radius = 5000 } = req.query;
-    if (!lat || !lng) return next(new AppError('lat and lng required.', 400));
-
-    const drivers = await User.find({
-      'driverInfo.isOnline': true,
-      isDriverApproved: true,
-      'driverInfo.currentLocation': {
-        $nearSphere: {
-          $geometry: { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] },
-          $maxDistance: parseInt(radius),
-        },
-      },
-    }).select('firstName lastName driverInfo.currentLocation driverInfo.vehicleModel driverRating');
-
-    res.json({ success: true, count: drivers.length, data: { drivers } });
   } catch (error) {
     next(error);
   }

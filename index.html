@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafarShare — India's Safest Intercity Ride-Sharing Platform</title>
+<meta name="description" content="Share rides across India. Verified drivers, real-time tracking, and a dedicated panic button. Travel safer, pay less.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand: #0F5C3A;
+  --brand-mid: #1A7D52;
+  --brand-light: #E6F4EE;
+  --brand-glow: rgba(26, 125, 82, 0.15);
+  --accent: #F5A623;
+  --text: #1A1A18;
+  --muted: #6B6860;
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; scroll-behavior: smooth; }
+
+/* NAVIGATION */
+nav { position: fixed; top: 0; left: 0; right: 0; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.nav-logo { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: var(--brand); text-decoration: none; letter-spacing: -0.5px; }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { text-decoration: none; color: var(--text); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+.nav-links a:hover { color: var(--brand); }
+.nav-cta { background: var(--brand); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 14px; transition: transform 0.2s; }
+.nav-cta:hover { transform: translateY(-2px); }
+
+/* HERO */
+.hero { position: relative; min-height: 90vh; display: flex; align-items: center; padding: 120px 5% 0; background: #061510; color: #fff; overflow: hidden; }
+.hero-img { position: absolute; right: 0; top: 0; width: 60%; height: 100%; object-fit: cover; opacity: 0.6; mask-image: linear-gradient(to left, black 60%, transparent 100%); }
+.hero-content { position: relative; z-index: 2; max-width: 600px; animation: fadeUp 1s ease both; }
+.hero-eyebrow { background: var(--brand-glow); border: 1px solid rgba(26, 125, 82, 0.3); color: #4ade80; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 32px; }
+.hero-h1 { font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; line-height: 1.1; margin-bottom: 24px; letter-spacing: -1.5px; }
+.hero-h1 span { color: var(--accent); }
+.hero-p { font-size: 18px; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 40px; }
+.hero-stats { display: flex; gap: 48px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; }
+.stat-item .val { display: block; font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.stat-item .lbl { color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* SEARCH BAR */
+.search-container { position: relative; margin-top: -60px; z-index: 10; padding: 0 5%; }
+.search-card { background: var(--surface); border-radius: 24px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); display: flex; gap: 16px; align-items: flex-end; max-width: 1000px; margin: 0 auto; }
+.search-field { flex: 1; }
+.search-field label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; }
+.search-field input { width: 100%; padding: 14px 16px; border: 1.5px solid rgba(0,0,0,0.05); border-radius: 14px; font-family: inherit; font-size: 15px; background: #f9f9f7; outline: none; transition: 0.2s; }
+.search-field input:focus { border-color: var(--brand); background: #fff; box-shadow: 0 0 0 4px var(--brand-glow); }
+.search-btn { background: var(--brand); color: #fff; border: none; padding: 14px 32px; border-radius: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: 0.3s; }
+.search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15, 92, 58, 0.3); }
+
+/* FEATURES */
+section { padding: 100px 5%; }
+.section-header { text-align: center; margin-bottom: 60px; }
+.section-eyebrow { color: var(--brand); font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 12px; }
+.section-h2 { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; letter-spacing: -0.5px; }
+
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+.feat-card { background: var(--surface); padding: 40px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.04); transition: 0.2s; }
+.feat-card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,0.06); }
+.feat-icon { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 24px; }
+.feat-h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+.feat-p { color: var(--muted); line-height: 1.6; font-size: 15px; }
+
+/* SAFETY CTA */
+.safety-cta { background: var(--brand); color: #fff; border-radius: 40px; text-align: center; overflow: hidden; position: relative; }
+.safety-h2 { font-family: 'Syne', sans-serif; font-size: 48px; margin-bottom: 24px; }
+.safety-btn { background: var(--accent); color: #000; padding: 18px 40px; border-radius: 16px; text-decoration: none; font-weight: 800; display: inline-block; margin-top: 32px; transition: 0.2s; }
+.safety-btn:hover { background: #fff; transform: scale(1.05); }
+
+/* FOOTER */
+footer { background: #061510; color: rgba(255,255,255,0.4); padding: 80px 5% 40px; font-size: 14px; }
+.footer-top { display: flex; justify-content: space-between; margin-bottom: 60px; }
+.footer-logo { font-family: 'Syne', sans-serif; color: #fff; font-size: 28px; font-weight: 800; text-decoration: none; margin-bottom: 24px; display: block; }
+.footer-links { list-style: none; display: flex; gap: 40px; }
+.footer-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-weight: 600; }
+.footer-copyright { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 32px; display: flex; justify-content: space-between; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 768px) {
+  .hero-h1 { font-size: 42px; }
+  .hero-img { width: 100%; opacity: 0.35; mask-image: linear-gradient(to top, black 40%, transparent 100%); }
+  .search-card { flex-direction: column; align-items: stretch; }
+  .footer-top { flex-direction: column; gap: 40px; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">SafarShare</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#safety">Safety Center</a></li>
+    <li><a href="#how">How it Works</a></li>
+    <li><a href="apps/safarshare-admin.html">Admin Login</a></li>
+  </ul>
+  <a href="apps/safarshare-app-connected.html" class="nav-cta">Open App →</a>
+</nav>
+
+<section class="hero">
+  <img src="safarshare_hero_car_interior_1775200792701.png" alt="Highway journey interior" class="hero-img">
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span style="display:inline-block;width:6px;height:6px;background:#4ade80;border-radius:50%;box-shadow:0 0 10px #4ade80"></span>
+      India's most trusted intercity network
+    </div>
+    <h1 class="hero-h1">Travel safer. <span>Share</span> the journey.</h1>
+    <p class="hero-p">Save up to 70% on fuel costs while traveling with verified professionals and students. Safe, reliable, and sustainable travel for everyone.</p>
+    
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="val" id="stat-users">24,800+</span>
+        <span class="lbl">Registered Users</span>
+      </div>
+      <div class="stat-item">
+        <span class="val" id="stat-rides">48,000+</span>
+        <span class="lbl">Rides Completed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="search-container">
+  <div class="search-card">
+    <div class="search-field">
+      <label>Departure City</label>
+      <input type="text" placeholder="e.g. Lucknow" id="from-city">
+    </div>
+    <div class="search-field">
+      <label>Destination</label>
+      <input type="text" placeholder="e.g. Kanpur" id="to-city">
+    </div>
+    <div class="search-field" style="max-width: 180px;">
+      <label>Travel Date</label>
+      <input type="date" id="date">
+    </div>
+    <button class="search-btn" onclick="searchRides()">Find Rides →</button>
+  </div>
+</div>
+
+<section id="features">
+  <div class="section-header">
+    <span class="section-eyebrow">Why SafarShare</span>
+    <h2 class="section-h2">Redefining intercity travel</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#E6F4EE">🛡️</div>
+      <h3 class="feat-h3">Verified Drivers</h3>
+      <p class="feat-p">Every single driver is verified via Aadhaar, License, and RC before being allowed on the platform. Safety is binary for us.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#FEF3DC">🆘</div>
+      <h3 class="feat-h3">Panic Button</h3>
+      <h3 class="feat-h3">Dedicated Panic Button</h3>
+      <p class="feat-p">One tap sends your live GPS location to your emergency contacts and our 24/7 dedicated safety response team.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:#FCEBEB">💰</div>
+      <h3 class="feat-h3">Affordable Travel</h3>
+      <p class="feat-p">Share the fuel cost and travel at prices significantly lower than private cabs or luxury buses, in the comfort of a private car.</p>
+    </div>
+  </div>
+</section>
+
+<section id="safety" class="safety-cta">
+  <h2 class="section-eyebrow" style="color:var(--accent)">Safety Center</h2>
+  <h2 class="safety-h2">Your safety is our <span>singular</span> priority.</h2>
+  <p style="max-width:600px;margin:0 auto;color:rgba(255,255,255,0.7);line-height:1.7">We use real-time GPS tracking, two-way feedback systems, and strict verification protocols to ensure every journey is secure.</p>
+  <a href="apps/safarshare-app-connected.html" class="safety-btn">Learn More About Safety</a>
+</section>
+
+<footer>
+  <div class="footer-top">
+    <div>
+      <a href="index.html" class="footer-logo">SafarShare</a>
+      <p style="max-width:300px">Connecting cities, sharing stories, and making travel accessible for every Indian.</p>
+    </div>
+    <ul class="footer-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#safety">Safety</a></li>
+      <li><a href="apps/safarshare-app-connected.html">Open App</a></li>
+      <li><a href="mailto:support@safarshare.in">Contact Us</a></li>
+    </ul>
+  </div>
+  <div class="footer-copyright">
+    <p>© 2026 SafarShare Technologies. Made with ❤️ in Lucknow.</p>
+    <div>
+      <a href="#" style="margin-left:24px;color:inherit;text-decoration:none">Privacy Policy</a>
+      <a href="#" style="margin-left:24px;color:inherit;text-decoration:none">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const API_BASE = 'http://localhost:5001/api';
+
+  // Live Stats Fetch
+  async function fetchStats() {
+    try {
+      const res = await fetch(`${API_BASE}/stats`);
+      const { data } = await res.json();
+      if(data) {
+        document.getElementById('stat-users').innerText = data.users.toLocaleString() + '+';
+        document.getElementById('stat-rides').innerText = data.rides.toLocaleString() + '+';
+      }
+    } catch(e) { console.warn('Stats fallback active'); }
+  }
+  fetchStats();
+
+  function searchRides() {
+    const from = document.getElementById('from-city').value;
+    const to = document.getElementById('to-city').value;
+    const date = document.getElementById('date').value;
+    if(!from || !to) return alert('Please enter both cities');
+    window.location.href = `apps/safarshare-app-connected.html?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${date}`;
+  }
+
+  // Set default date to tomorrow
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  document.getElementById('date').value = tomorrow.toISOString().split('T')[0];
+</script>
+
+</body>
+</html>

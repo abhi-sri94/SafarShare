@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafarShare - Admin Dashboard</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Material Symbols -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg-color: #f7f9fc;
+      --surface-color: #ffffff;
+      --primary-color: #5d48db;
+      --primary-light: #ecebfa;
+      --text-main: #1f2937;
+      --text-light: #6b7280;
+      --border-color: #e5e7eb;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --sidebar-width: 250px;
+      --nav-height: 64px;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    aside {
+      width: var(--sidebar-width);
+      background-color: var(--surface-color);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      z-index: 10;
+    }
+
+    .brand {
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand span { margin-right: 8px; font-weight: 800; }
+
+    .nav-links {
+      padding: 24px 16px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      color: var(--text-light);
+      text-decoration: none;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      background-color: #f3f4f6;
+      color: var(--text-main);
+    }
+
+    .nav-link.active {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .nav-link .material-symbols-outlined {
+      margin-right: 12px;
+      font-size: 20px;
+    }
+
+    .nav-link .chevron {
+      margin-left: auto;
+      font-size: 18px;
+    }
+
+    /* Main Content */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Topbar */
+    header {
+      height: var(--nav-height);
+      background-color: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 5;
+    }
+
+    .header-left { font-weight: 600; font-size: 1.1rem; }
+    
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    
+    .profile-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .profile-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background-color: var(--primary-light); color: var(--primary-color); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+    /* Scrollable Area */
+    .content-area {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Views */
+    .view-section { display: none; }
+    .view-section.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Grid Layouts */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface-color);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-color);
+    }
+
+    .welcome-card {
+      background: linear-gradient(135deg, #ffffff 0%, #fefefe 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-content { z-index: 1; max-width: 60%; }
+    .welcome-content h2 { margin-bottom: 8px; color: var(--text-main); font-size: 1.5rem; }
+    .welcome-content p { color: var(--text-light); line-height: 1.5; margin-bottom: 16px; }
+    .welcome-btn {
+      background: var(--surface-color);
+      color: var(--primary-color);
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .welcome-btn:hover { background: var(--primary-light); }
+    
+    .welcome-illustration {
+      position: absolute;
+      right: 24px;
+      bottom: 0;
+      width: 150px;
+      opacity: 0.9;
+    }
+
+    .stat-card {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; color: var(--text-light); }
+    .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .stat-icon.green { background: #d1fae5; color: #059669; }
+    .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-icon.purple { background: #ede9fe; color: #7c3aed; }
+    .stat-icon.orange { background: #ffedd5; color: #ea580c; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; margin-bottom: 4px; }
+    .stat-change { font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .stat-change.positive { color: var(--success-color); }
+    .stat-change.negative { color: var(--danger-color); }
+
+    .chart-container { position: relative; height: 250px; width: 100%; margin-top: 16px; }
+    
+    /* Tables */
+    .table-card { margin-bottom: 24px; }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .table-title { font-size: 1.1rem; font-weight: 600; }
+    
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 12px 16px; color: var(--text-light); font-weight: 500; font-size: 0.85rem; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background-color: #f9fafb; }
+    
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .badge.success { background: #d1fae5; color: #059669; }
+    .badge.warning { background: #fef3c7; color: #d97706; }
+    .badge.danger { background: #fee2e2; color: #dc2626; }
+    .badge.info { background: #e0f2fe; color: #0284c7; }
+
+    .action-btn { background: none; border: none; cursor: pointer; color: var(--primary-color); font-weight: 500; padding: 4px 8px; border-radius: 4px; }
+    .action-btn:hover { background: var(--primary-light); }
+
+    /* Login Overlay */
+    #login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255,255,255,0.95);
+      z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .login-box {
+      background: white; padding: 40px; border-radius: 12px; box-shadow: var(--shadow-md);
+      width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--border-color);
+    }
+    .login-box h2 { margin-bottom: 24px; color: var(--primary-color); }
+    .login-btn {
+      background: var(--primary-color); color: white; border: none; padding: 12px 24px;
+      border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; width: 100%; transition: opacity 0.2s;
+    }
+    .login-btn:hover { opacity: 0.9; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Auth Check Overlay -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <h2>SafarShare Admin</h2>
+      <p style="margin-bottom: 24px; color: #6b7280;">You must be logged in as an administrator to access this panel.</p>
+      <button class="login-btn" onclick="window.location.href='admin-login.html'">Go to Login</button>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="brand">
+      <span class="material-symbols-outlined">directions_car</span> Safar Admin
+    </div>
+    <div class="nav-links">
+      <a class="nav-link active" onclick="switchTab('dashboard')">
+        <span class="material-symbols-outlined">dashboard</span> Dashboard
+      </a>
+      <a class="nav-link" onclick="switchTab('users')">
+        <span class="material-symbols-outlined">group</span> Users
+      </a>
+      <a class="nav-link" onclick="switchTab('approvals')">
+        <span class="material-symbols-outlined">verified_user</span> Pending Approvals
+        <span class="badge warning" style="margin-left:auto" id="nav-pending-badge">0</span>
+      </a>
+      <a class="nav-link" onclick="switchTab('rides')">
+        <span class="material-symbols-outlined">route</span> Rides
+      </a>
+      <a class="nav-link" onclick="logout()">
+        <span class="material-symbols-outlined">logout</span> Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main>
+    <header>
+      <div class="header-left" id="header-title">Dashboard</div>
+      <div class="header-right">
+        <span class="material-symbols-outlined" style="color:var(--text-light); cursor:pointer;">notifications</span>
+        <div class="profile-wrap">
+          <div class="profile-img">A</div>
+          <span style="font-weight: 500; font-size: 0.95rem;">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-area">
+      
+      <!-- DASHBOARD VIEW -->
+      <div id="view-dashboard" class="view-section active">
+        <div class="main-grid">
+          <!-- Welcome -->
+          <div class="card welcome-card">
+            <div class="welcome-content">
+              <h2>Welcome Super Admin! 🎉</h2>
+              <p>Welcome to the SafarShare Admin Panel. Manage your platform operations, users, and rides from here.</p>
+              <button class="welcome-btn" onclick="switchTab('approvals')">Review Pending Drivers</button>
+            </div>
+          </div>
+          
+          <!-- Small Stats -->
+          <div class="card stat-card">
+            <div class="stat-header">
+              <div class="stat-icon purple"><span class="material-symbols-outlined">group</span></div>
+              <span class="material-symbols-outlined" style="cursor:pointer">more_vert</span>
+            </div>
+            <div style="color: var(--text-light); margin-bottom:4px; font-size:0.9rem">Total Users</div>
+            <div class="stat-value" id="stat-users">-</div>
+            <div class="stat-change positive"><span class="material-symbols-outlined" style="font-size:16px">trending_up</span> Platform base</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card stat-card">
+            <div class="stat-header">
+              <div class="stat-icon blue"><span class="material-symbols-outlined">local_taxi</span></div>
+              <span class="material-symbols-outlined" style="cursor:pointer">more_vert</span>
+            </div>
+            <div style="color: var(--text-light); margin-bottom:4px; font-size:0.9rem">Active Deliveries/Rides</div>
+            <div class="stat-value" id="stat-active-rides">-</div>
+          </div>
+          
+          <div class="card stat-card">
+            <div class="stat-header">
+              <div class="stat-icon green"><span class="material-symbols-outlined">payments</span></div>
+            </div>
+            <div style="color: var(--text-light); margin-bottom:4px; font-size:0.9rem">Gross Revenue (Est)</div>
+            <div class="stat-value" id="stat-revenue">₹0</div>
+          </div>
+
+          <div class="card stat-card">
+            <div class="stat-header">
+              <div class="stat-icon orange"><span class="material-symbols-outlined">receipt_long</span></div>
+            </div>
+            <div style="color: var(--text-light); margin-bottom:4px; font-size:0.9rem">Total Rides Created</div>
+            <div class="stat-value" id="stat-total-rides">-</div>
+          </div>
+        </div>
+
+        <div class="main-grid">
+          <!-- Chart -->
+          <div class="card" style="grid-column: span 1;">
+            <div class="table-title">Activity Overview</div>
+            <div class="chart-container">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPROVALS VIEW -->
+      <div id="view-approvals" class="view-section">
+        <div class="card table-card">
+          <div class="table-header">
+            <div class="table-title">Pending Driver Applications</div>
+            <button class="action-btn" onclick="loadApprovals()" style="background:var(--primary-light);"><span class="material-symbols-outlined" style="vertical-align:middle;font-size:18px;">refresh</span> Refresh</button>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Phone</th>
+                  <th>Vehicle</th>
+                  <th>Documents</th>
+                  <th>Applied On</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="approvals-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-light);">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+       <!-- USERS VIEW -->
+       <div id="view-users" class="view-section">
+        <div class="card table-card">
+          <div class="table-header">
+            <div class="table-title">All Platform Users</div>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-light);">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIDES VIEW -->
+      <div id="view-rides" class="view-section">
+        <div class="card table-card">
+          <div class="table-header">
+            <div class="table-title">Recent Rides</div>
+          </div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>Route</th>
+                  <th>Date</th>
+                  <th>Price/Seat</th>
+                  <th>Seats</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="rides-tbody">
+                <tr><td colspan="6" style="text-align:center;color:var(--text-light);">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:5001/api'; 
+    let token = localStorage.getItem('safarshare_admin_token');
+    
+    // Auth Check
+    async function checkAuth() {
+      if (!token) return false;
+      try {
+        const res = await fetch(`${API_BASE}/auth/me`, { // Updated to /auth/me for standard check
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success && data.data.user.role === 'admin') {
+          document.getElementById('login-overlay').style.display = 'none';
+          return true;
+        } else {
+          // Not an admin
+          alert('You do not have administrative privileges.');
+          return false;
+        }
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // Navigation Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.getElementById('view-' + tabId).classList.add('active');
+      
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const titles = {
+        'dashboard': 'Dashboard',
+        'users': 'User Management',
+        'approvals': 'Driver Approvals',
+        'rides': 'Platform Rides'
+      };
+      document.getElementById('header-title').innerText = titles[tabId];
+
+      // Load data lazily
+      if(tabId === 'dashboard') loadDashboard();
+      if(tabId === 'users') loadUsers();
+      if(tabId === 'approvals') loadApprovals();
+      if(tabId === 'rides') loadRides();
+    }
+
+    function logout() {
+      localStorage.removeItem('safarshare_admin_token');
+      window.location.href = 'admin-login.html';
+    }
+
+    // Data Loaders
+    async function apiCall(endpoint, options = {}) {
+      const res = await fetch(`${API_BASE}/admin/${endpoint}`, {
+        ...options,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      });
+      return await res.json();
+    }
+
+    async function loadDashboard() {
+      try {
+        const res = await apiCall('dashboard-stats');
+        if (res.success) {
+          const d = res.data;
+          document.getElementById('stat-users').innerText = d.totalUsers;
+          document.getElementById('stat-active-rides').innerText = d.activeDeliveries;
+          document.getElementById('stat-revenue').innerText = '₹' + d.totalRevenue;
+          document.getElementById('stat-total-rides').innerText = d.totalOrders;
+        }
+        
+        // Load pending count for badge
+        const pRes = await apiCall('pending-drivers');
+        if (pRes.success) {
+          document.getElementById('nav-pending-badge').innerText = pRes.count;
+        }
+      } catch (e) { console.error('Dashboard error:', e); }
+    }
+
+    async function loadApprovals() {
+      try {
+        const res = await apiCall('pending-drivers');
+        const tbody = document.getElementById('approvals-tbody');
+        tbody.innerHTML = '';
+        
+        if (!res.success || res.count === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#6b7280;padding:24px;">No pending applications found.</td></tr>`;
+          return;
+        }
+        res.data.forEach(user => {
+          const d = user.driver_info || {};
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight:600">${user.first_name} ${user.last_name}</div>
+              <div style="font-size:0.8rem;color:var(--text-light)">${user.email}</div>
+            </td>
+            <td>${user.phone}</td>
+            <td>${d.vehicle_model || 'N/A'} <br><small style="color:var(--text-light)">${d.vehicle_number || ''}</small></td>
+            <td>
+              <a href="${d.license_doc}" target="_blank" style="color:var(--primary-color);text-decoration:none;font-size:0.85rem;">View License</a>
+              ${d.rc_doc ? `<br><a href="${d.rc_doc}" target="_blank" style="color:var(--primary-color);text-decoration:none;font-size:0.85rem;">View RC</a>` : ''}
+            </td>
+            <td>${new Date(user.created_at).toLocaleDateString()}</td>
+            <td>
+              <button class="action-btn" onclick="approveDriver('${user.id}')" style="background:#10b981;color:white;padding:8px 16px;">Approve</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    async function approveDriver(id) {
+      if(!confirm('Are you sure you want to approve this driver?')) return;
+      try {
+        const res = await apiCall(`approve-driver/${id}`, { method: 'PATCH' });
+        if(res.success) {
+          alert('Driver approved successfully!');
+          loadApprovals(); // refresh
+          loadDashboard(); // refresh badge
+        } else {
+          alert('Error: ' + res.message);
+        }
+      } catch (e) { alert('Approval failed'); }
+    }
+
+    async function loadUsers() {
+      try {
+        const res = await apiCall('users');
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = '';
+        if(res.data) {
+          res.data.forEach(u => {
+            const roleBadgeClass = u.role === 'admin' ? 'info' : (u.role === 'driver' || u.role === 'both' ? 'success' : 'warning');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><div style="font-weight:600">${u.first_name} ${u.last_name}</div></td>
+              <td>${u.phone}</td>
+              <td>${u.email}</td>
+              <td><span class="badge ${roleBadgeClass}">${u.role.toUpperCase()}</span></td>
+              <td>
+                ${u.is_driver_approved ? '<span class="badge success">Verified</span>' : '<span class="badge" style="background:#f3f4f6;color:gray">Standard</span>'}
+              </td>
+              <td style="color:var(--text-light);font-size:0.85rem">${new Date(u.created_at).toLocaleDateString()}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    async function loadRides() {
+      try {
+        const res = await apiCall('rides');
+        const tbody = document.getElementById('rides-tbody');
+        tbody.innerHTML = '';
+        if(res.data) {
+          res.data.forEach(r => {
+            const statusClass = {
+              'completed': 'success',
+              'active': 'info',
+              'in_progress': 'info',
+              'cancelled': 'danger',
+              'scheduled': 'warning'
+            }[r.status] || 'info';
+
+            const driverName = r.driver ? `${r.driver.first_name} ${r.driver.last_name}` : 'Unknown';
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><div style="font-weight:600">${driverName}</div></td>
+              <td>
+                ${r.origin?.city} <span class="material-symbols-outlined" style="font-size:12px;vertical-align:middle">arrow_forward</span> ${r.destination?.city}
+              </td>
+              <td style="color:var(--text-light);font-size:0.85rem">${new Date(r.departure_time).toLocaleString()}</td>
+              <td>₹${r.price_per_seat}</td>
+              <td>${r.seats_booked}/${r.total_seats}</td>
+              <td><span class="badge ${statusClass}">${r.status.toUpperCase()}</span></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    // Init Chart
+    function initChart() {
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+          datasets: [{
+            label: '2025 Revenue',
+            data: [12, 19, 3, 5, 2, 3, 9],
+            backgroundColor: '#5d48db',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f3f4f6' }, border: { display: false } },
+            x: { grid: { display: false }, border: { display: false } }
+          }
+        }
+      });
+    }
+
+    // App Init
+    window.onload = async () => {
+      const isAuth = await checkAuth();
+      if (isAuth) {
+        initChart();
+        loadDashboard();
+      }
+    };
+
+  </script>
+</body>
+</html>

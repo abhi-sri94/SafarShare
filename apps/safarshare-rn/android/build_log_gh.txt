@@ -1,0 +1,90 @@
+> Task :gradle-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:jar UP-TO-DATE
+> Task :gradle-plugin:inspectClassesForKotlinIC UP-TO-DATE
+
+> Configure project :react-native-firebase_app
+:react-native-firebase_app package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:firebase.bom using default value: 32.7.1
+:react-native-firebase_app:play.play-services-auth using default value: 20.7.0
+:react-native-firebase_app package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_app:version set from package.json: 18.8.0 (18,8,0 - 18008000)
+:react-native-firebase_app:android.compileSdk using custom value: 34
+:react-native-firebase_app:android.targetSdk using custom value: 34
+:react-native-firebase_app:android.minSdk using custom value: 21
+:react-native-firebase_app:reactNativeAndroidDir /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/react-native/android
+
+> Configure project :react-native-firebase_auth
+:react-native-firebase_auth package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/auth/package.json
+:react-native-firebase_app package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_auth:firebase.bom using default value: 32.7.1
+:react-native-firebase_auth package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/auth/package.json
+:react-native-firebase_auth:version set from package.json: 18.8.0 (18,8,0 - 18008000)
+:react-native-firebase_auth:android.compileSdk using custom value: 34
+:react-native-firebase_auth:android.targetSdk using custom value: 34
+:react-native-firebase_auth:android.minSdk using custom value: 21
+:react-native-firebase_auth:reactNativeAndroidDir /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/react-native/android
+
+> Configure project :react-native-firebase_messaging
+:react-native-firebase_messaging package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/messaging/package.json
+:react-native-firebase_app package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/app/package.json
+:react-native-firebase_messaging:firebase.bom using default value: 32.7.1
+:react-native-firebase_messaging package.json found at /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/@react-native-firebase/messaging/package.json
+:react-native-firebase_messaging:version set from package.json: 18.8.0 (18,8,0 - 18008000)
+:react-native-firebase_messaging:android.compileSdk using custom value: 34
+:react-native-firebase_messaging:android.targetSdk using custom value: 34
+:react-native-firebase_messaging:android.minSdk using custom value: 21
+:react-native-firebase_messaging:reactNativeAndroidDir /Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/react-native/android
+
+> Configure project :react-native-reanimated
+Android gradle plugin: 8.1.1
+Gradle: 8.3
+
+> Task :react-native-gesture-handler:assertNoMultipleInstances
+> Task :react-native-gesture-handler:preBuild
+> Task :react-native-gesture-handler:preDebugBuild
+> Task :react-native-gesture-handler:generateDebugBuildConfig UP-TO-DATE
+> Task :react-native-gesture-handler:generateDebugResValues UP-TO-DATE
+> Task :react-native-gesture-handler:generateDebugResources UP-TO-DATE
+> Task :react-native-gesture-handler:packageDebugResources UP-TO-DATE
+> Task :react-native-gesture-handler:parseDebugLocalResources UP-TO-DATE
+> Task :react-native-gesture-handler:processDebugManifest UP-TO-DATE
+> Task :react-native-reanimated:assertLatestReactNativeWithNewArchitectureTask SKIPPED
+> Task :react-native-reanimated:assertMinimalReactNativeVersionTask SKIPPED
+> Task :react-native-reanimated:prepareHeadersForPrefab UP-TO-DATE
+> Task :react-native-reanimated:preBuild UP-TO-DATE
+> Task :react-native-reanimated:preDebugBuild UP-TO-DATE
+> Task :react-native-reanimated:generateDebugResValues UP-TO-DATE
+> Task :react-native-reanimated:generateDebugResources UP-TO-DATE
+> Task :react-native-reanimated:packageDebugResources UP-TO-DATE
+> Task :react-native-reanimated:parseDebugLocalResources UP-TO-DATE
+> Task :react-native-reanimated:processDebugManifest UP-TO-DATE
+> Task :react-native-reanimated:generateDebugRFile UP-TO-DATE
+> Task :react-native-gesture-handler:generateDebugRFile UP-TO-DATE
+> Task :react-native-reanimated:generateDebugBuildConfig UP-TO-DATE
+> Task :react-native-reanimated:javaPreCompileDebug UP-TO-DATE
+> Task :react-native-reanimated:packageNdkLibs NO-SOURCE
+> Task :react-native-reanimated:compileDebugJavaWithJavac UP-TO-DATE
+> Task :react-native-reanimated:bundleLibCompileToJarDebug UP-TO-DATE
+
+> Task :react-native-gesture-handler:compileDebugKotlin FAILED
+e: file:///Users/user/Downloads/Safarshare-by-claude/apps/safarshare-rn/node_modules/react-native-gesture-handler/android/src/main/java/com/swmansion/gesturehandler/react/RNGestureHandlerModule.kt:449:32 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type JavaScriptContextHolder?
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':react-native-gesture-handler:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 21s
+23 actionable tasks: 2 executed, 21 up-to-date

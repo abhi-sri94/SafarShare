@@ -1,26 +1,38 @@
-const mongoose = require('mongoose');
+const supabase = require('./src/config/supabase');
 require('dotenv').config();
-const User = require('./src/models/User');
 
 const approveDriver = async (email) => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB');
+    const { data: user, error: fetchError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
 
-    const user = await User.findOne({ email });
-    if (!user) {
-      console.error('User not found');
+    if (fetchError || !user) {
+      console.error('User not found or error fetching user:', fetchError?.message);
       process.exit(1);
     }
 
-    user.isDriverApproved = true;
-    user.role = (user.role === 'passenger') ? 'both' : user.role;
-    await user.save();
+    const newRole = user.role === 'passenger' ? 'both' : user.role;
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        is_driver_approved: true,
+        role: newRole
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('Error approving driver:', updateError.message);
+      process.exit(1);
+    }
 
     console.log(`Driver ${email} approved successfully!`);
     process.exit(0);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Unexpected error:', error);
     process.exit(1);
   }
 };

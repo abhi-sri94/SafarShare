@@ -4,12 +4,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
-const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const connectDB = require('./config/database');
 const { initSocket } = require('./socket/socket');
 const logger = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
@@ -23,14 +21,12 @@ const paymentRoutes = require('./routes/payments');
 const chatRoutes = require('./routes/chat');
 const trackingRoutes = require('./routes/tracking');
 const adminRoutes = require('./routes/admin');
+const statsRoutes = require('./routes/stats');
 const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 app.set('trust proxy', 1);
 const server = http.createServer(app);
-
-// Connect DB
-connectDB();
 
 // Init Socket.io
 initSocket(server);
@@ -45,8 +41,6 @@ const allowedOrigins = (() => {
     .map(s => s.trim())
     .filter(Boolean);
 
-  // Keep local dev allowed, and include common production frontends as a fallback.
-  // (We include these even in dev because Vercel is always HTTPS.)
   const defaults = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
@@ -65,7 +59,6 @@ const allowedOrigins = (() => {
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Non-browser requests may not have an Origin header.
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return callback(null, true);
     return callback(null, false);
@@ -77,7 +70,7 @@ app.use(cors({
 
 // Rate limiting — global
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 200,
   message: { success: false, message: 'Too many requests, please try again later.' },
   standardHeaders: true,
@@ -97,7 +90,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Security middleware
-app.use(mongoSanitize()); // Prevent NoSQL injection
 app.use(hpp());           // Prevent HTTP param pollution
 app.use(compression());   // Gzip responses
 
@@ -112,7 +104,7 @@ if (process.env.NODE_ENV === 'development') {
 app.get('/health', (req, res) => {
   res.json({
     success: true,
-    message: 'SafarShare API is running 🚗',
+    message: 'SafarShare API is running 🚗 (Supabase Enabled)',
     version: '1.0.0',
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
@@ -120,6 +112,7 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/stats', statsRoutes);
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rides', rideRoutes);
@@ -143,7 +136,7 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  logger.info(`SafarShare backend running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  logger.info(`SafarShare backend running on port ${PORT} in ${process.env.NODE_ENV} mode (Supabase Ready)`);
 });
 
 // Graceful shutdown

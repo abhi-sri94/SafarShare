@@ -1,6 +1,7 @@
 services:
+  # ── 1. Backend API ────────────────────────────────────────────────────────
   - type: web
-    name: safarshare-backend
+    name: safarshare-api
     env: node
     plan: free
     buildCommand: npm install
@@ -10,15 +11,46 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: FRONTEND_URL
-        value: https://safarshare-web.vercel.app,http://localhost:3000,http://127.0.0.1:5502
       - key: JWT_SECRET
-        value: safarshare_jwt_secret_change_this_before_production
-      - key: MSG91_AUTH_KEY
-        value: 462793ANWxhhvUbfxr69be35afP1
-      - key: MSG91_OTP_TEMPLATE_ID
-        value: 69b90a681dee2927e60619d2
-      - key: MSG91_SENDER_ID
-        value: MSGIND
-      - key: MONGODB_URI
-        value: mongodb+srv://abhishek:abhi1994@meramistribackend.8upk2ns.mongodb.net/?appName=meramistribackend
+        sync: true
+      - key: JWT_REFRESH_SECRET
+        sync: true
+      - key: SUPABASE_URL
+        sync: true
+      - key: SUPABASE_ANON_KEY
+        sync: true
+      - key: ADMIN_SECRET_KEY
+        sync: true
+      - key: GOOGLE_MAPS_API_KEY
+        sync: true
+      - key: RAZORPAY_KEY_ID
+        sync: true
+      - key: RAZORPAY_KEY_SECRET
+        sync: true
+      - key: FIREBASE_PROJECT_ID
+        sync: true
+      - key: FIREBASE_PRIVATE_KEY
+        sync: true
+      - key: FIREBASE_CLIENT_ID
+        sync: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: true
+      - key: CLOUDINARY_API_KEY
+        sync: true
+      - key: CLOUDINARY_API_SECRET
+        sync: true
+
+  # ── 2. Static Website ─────────────────────────────────────────────────────
+  - type: static
+    name: safarshare-web
+    env: static
+    routes:
+      - type: rewrite
+        from: /app/*
+        to: /apps/safarshare-app-connected.html
+      - type: rewrite
+        from: /admin/*
+        to: /apps/admin-login.html
+    envVars:
+      - key: SKIP_INSTALL
+        value: true

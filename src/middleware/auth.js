@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const supabase = require('../config/supabase');
 const AppError = require('../utils/AppError');
 
 const protect = async (req, res, next) => {
@@ -12,10 +12,16 @@ const protect = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id).select('+password');
-    if (!user) return next(new AppError('User no longer exists.', 401));
-    if (user.isBanned) return next(new AppError('Your account has been suspended. Contact support.', 403));
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', decoded.id)
+      .single();
 
+    if (error || !user) return next(new AppError('User no longer exists.', 401));
+    if (user.is_banned) return next(new AppError('Your account has been suspended. Contact support.', 403));
+
+    // Manually map camelCase for internal use if needed, or keep snake_case from DB
     req.user = user;
     next();
   } catch (error) {
@@ -33,7 +39,7 @@ const restrictTo = (...roles) => (req, res, next) => {
 };
 
 const requireDriverApproval = (req, res, next) => {
-  if (!req.user.isDriverApproved) {
+  if (!req.user.is_driver_approved) {
     return next(new AppError('Your driver account is pending admin approval.', 403));
   }
   next();
@@ -45,7 +51,12 @@ const optionalAuth = async (req, res, next) => {
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.id);
+      const { data: user } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', decoded.id)
+        .single();
+      req.user = user;
     }
     next();
   } catch {

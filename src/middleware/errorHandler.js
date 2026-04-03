@@ -1,39 +1,44 @@
 const AppError = require('../utils/AppError');
 const logger = require('../utils/logger');
 
-const handleCastError = (err) => new AppError(`Invalid ${err.path}: ${err.value}`, 400);
-const handleDuplicateKeyError = (err) => {
-  const field = Object.keys(err.keyValue)[0];
-  const value = err.keyValue[field];
-  return new AppError(`${field === 'phone' ? 'Phone number' : field === 'email' ? 'Email' : field} '${value}' is already registered.`, 409);
-};
-const handleValidationError = (err) => {
-  const messages = Object.values(err.errors).map(e => e.message);
-  return new AppError(messages.join('. '), 400);
+const handlePostgresError = (err) => {
+  // Unique violation
+  if (err.code === '23505') {
+    const detail = err.detail || '';
+    const fieldMatch = detail.match(/\((.*?)\)=\((.*?)\)/);
+    const field = fieldMatch ? fieldMatch[1] : 'field';
+    return new AppError(`${field === 'phone' ? 'Phone number' : field === 'email' ? 'Email' : field} already exists.`, 409);
+  }
+
+  // Foreign key violation
+  if (err.code === '23503') {
+    return new AppError('Related record not found.', 400);
+  }
+
+  // Not null violation
+  if (err.code === '23502') {
+    return new AppError(`Missing required field: ${err.column}`, 400);
+  }
+
+  return new AppError('Database error occurred.', 500);
 };
 
 const errorHandler = (err, req, res, next) => {
   let error = { ...err, message: err.message };
 
-  // Mongoose errors
-  if (err.name === 'CastError') error = handleCastError(err);
-  if (err.code === 11000) error = handleDuplicateKeyError(err);
-  if (err.name === 'ValidationError') error = handleValidationError(err);
-  if (err.name === 'JsonWebTokenError') error = new AppError('Invalid token. Please log in again.', 401);
-  if (err.name === 'TokenExpiredError') error = new AppError('Your session has expired. Please log in again.', 401);
-
-  const statusCode = error.statusCode || 500;
-  const status = error.status || 'error';
-
-  // Log non-operational errors
-  if (!error.isOperational) {
-    logger.error('UNHANDLED ERROR:', err);
+  // Supabase/PostgreSQL specific errors
+  if (err.code && typeof err.code === 'string' && err.code.length === 5) {
+    error = handlePostgresError(err);
   }
 
+  if (err.name === 'JsonWebTokenError') error = new AppError('Invalid token.', 401);
+  if (err.name === 'TokenExpiredError') error = new AppError('Session expired.', 401);
+
+  const statusCode = error.statusCode || 500;
+  
   if (process.env.NODE_ENV === 'development') {
     res.status(statusCode).json({
       success: false,
-      status,
       message: error.message,
       stack: err.stack,
       error: err,
@@ -41,10 +46,11 @@ const errorHandler = (err, req, res, next) => {
   } else {
     res.status(statusCode).json({
       success: false,
-      status,
-      message: error.isOperational ? error.message : 'Something went wrong. Please try again.',
+      message: error.isOperational ? error.message : 'Something went wrong.',
     });
   }
+
+  if (statusCode === 500) logger.error('UNHANDLED ERROR:', err);
 };
 
 module.exports = errorHandler;

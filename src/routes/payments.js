@@ -1,17 +1,25 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const Payment = require('../models/Payment');
-const Booking = require('../models/Booking');
+const supabase = require('../config/supabase');
 const { protect } = require('../middleware/auth');
-const { verifyAndCapturePayment, processRefund, handleWebhook } = require('../services/razorpayService');
+const { verifyAndCapturePayment, handleWebhook } = require('../services/razorpayService');
 const { notifyBookingConfirmed } = require('../services/firebaseService');
 const AppError = require('../utils/AppError');
 const logger = require('../utils/logger');
 
 const router = express.Router();
 
+// ── Role Specific Fetching ────────────────────────────────────────────────
+const getPopulatedBooking = async (id) => {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*, ride:rides(*), passenger:users(*), driver:users(*)')
+    .eq('id', id)
+    .single();
+  return { data, error };
+};
+
 // ── POST /api/payments/verify ──────────────────────────────────────────────
-// Called by frontend after Razorpay checkout completes
 router.post('/verify', protect, [
   body('razorpayOrderId').notEmpty(),
   body('razorpayPaymentId').notEmpty(),
@@ -26,17 +34,12 @@ router.post('/verify', protect, [
     const result = await verifyAndCapturePayment({ razorpayOrderId, razorpayPaymentId, razorpaySignature });
     if (!result.success) return next(new AppError(result.message, 400));
 
-    const booking = await Booking.findById(result.paymentRecord.booking)
-      .populate('passenger', 'firstName lastName fcmToken phone')
-      .populate('driver', 'firstName lastName fcmToken phone')
-      .populate('ride', 'origin destination departureTime');
-
-    // Notify both parties
+    const { data: booking } = await getPopulatedBooking(result.paymentRecord.booking_id);
     await notifyBookingConfirmed(booking.passenger, booking.driver, booking);
 
     res.json({
       success: true,
-      message: 'Payment successful! Booking confirmed.',
+      message: 'Payment successful!',
       data: { booking, payment: result.paymentRecord },
     });
   } catch (error) {
@@ -49,25 +52,29 @@ router.get('/my', protect, async (req, res, next) => {
   try {
     const { page = 1, limit = 20 } = req.query;
 
-    const payments = await Payment.find({ payer: req.user._id })
-      .populate({ path: 'booking', populate: { path: 'ride', select: 'origin destination departureTime' } })
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+    const { data: payments, count, error } = await supabase
+      .from('payments')
+      .select('*, booking:bookings(*, ride:rides(*))', { count: 'exact' })
+      .eq('payer_id', req.user.id)
+      .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
 
-    const total = await Payment.countDocuments({ payer: req.user._id });
+    if (error) throw error;
 
-    // Summary stats
-    const stats = await Payment.aggregate([
-      { $match: { payer: req.user._id, status: 'captured' } },
-      { $group: { _id: null, totalSpent: { $sum: '$amount' }, count: { $sum: 1 } } },
-    ]);
+    // Summary stats (simple fetch and calculate)
+    const { data: allCaptured } = await supabase
+      .from('payments')
+      .select('amount')
+      .eq('payer_id', req.user.id)
+      .eq('status', 'captured');
+
+    const totalSpent = allCaptured?.reduce((sum, p) => sum + p.amount, 0) || 0;
 
     res.json({
       success: true,
       count: payments.length,
-      total,
-      stats: stats[0] || { totalSpent: 0, count: 0 },
+      total: count,
+      stats: { totalSpent, count: allCaptured?.length || 0 },
       data: { payments },
     });
   } catch (error) {
@@ -76,7 +83,6 @@ router.get('/my', protect, async (req, res, next) => {
 });
 
 // ── GET /api/payments/earnings ─────────────────────────────────────────────
-// Driver earnings summary
 router.get('/earnings', protect, async (req, res, next) => {
   try {
     const { period = 'month' } = req.query;
@@ -88,71 +94,44 @@ router.get('/earnings', protect, async (req, res, next) => {
     else if (period === 'year') startDate = new Date(now.getFullYear(), 0, 1);
     else startDate = new Date(0);
 
-    const earnings = await Payment.aggregate([
-      {
-        $match: {
-          receiver: req.user._id,
-          status: 'captured',
-          createdAt: { $gte: startDate },
-        },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          dailyEarnings: { $sum: { $subtract: ['$amount', { $multiply: ['$amount', 0.13] }] } },
-          rides: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ]);
+    const { data: payments, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('receiver_id', req.user.id)
+      .eq('status', 'captured')
+      .gte('created_at', startDate.toISOString());
 
-    const totalEarnings = earnings.reduce((sum, day) => sum + day.dailyEarnings, 0);
-    const totalRides = earnings.reduce((sum, day) => sum + day.rides, 0);
-    const pendingPayout = await Payment.aggregate([
-      { $match: { receiver: req.user._id, payoutStatus: 'pending', status: 'captured' } },
-      { $group: { _id: null, amount: { $sum: '$amount' } } },
-    ]);
+    if (error) throw error;
+
+    // Grouping logic in JS
+    const earningsByDay = {};
+    payments.forEach(p => {
+      const day = p.created_at.split('T')[0];
+      if (!earningsByDay[day]) earningsByDay[day] = { dailyEarnings: 0, rides: 0 };
+      earningsByDay[day].dailyEarnings += p.amount * 0.87; // Assuming 13% commission
+      earningsByDay[day].rides += 1;
+    });
+
+    const dailyBreakdown = Object.keys(earningsByDay).map(date => ({
+      _id: date,
+      ...earningsByDay[date],
+      dailyEarnings: Math.round(earningsByDay[date].dailyEarnings)
+    })).sort((a, b) => a._id.localeCompare(b._id));
+
+    const totalEarnings = dailyBreakdown.reduce((sum, d) => sum + d.dailyEarnings, 0);
+    const totalRides = dailyBreakdown.reduce((sum, d) => sum + d.rides, 0);
 
     res.json({
       success: true,
       data: {
         period,
-        totalEarnings: Math.round(totalEarnings),
+        totalEarnings,
         totalRides,
-        pendingPayout: Math.round((pendingPayout[0]?.amount || 0) * 0.87),
-        dailyBreakdown: earnings,
+        dailyBreakdown
       },
     });
   } catch (error) {
     next(error);
-  }
-});
-
-// ── GET /api/payments/:id/receipt ─────────────────────────────────────────
-router.get('/:id/receipt', protect, async (req, res, next) => {
-  try {
-    const payment = await Payment.findById(req.params.id)
-      .populate({ path: 'booking', populate: [{ path: 'ride' }, { path: 'passenger', select: 'firstName lastName phone' }, { path: 'driver', select: 'firstName lastName driverInfo.vehicleNumber' }] });
-
-    if (!payment) return next(new AppError('Payment not found.', 404));
-    if (payment.payer.toString() !== req.user._id.toString()) return next(new AppError('Not authorized.', 403));
-
-    res.json({ success: true, data: { payment } });
-  } catch (error) {
-    next(error);
-  }
-});
-
-// ── POST /webhook/razorpay ────────────────────────────────────────────────
-// Raw body route registered in server.js
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  try {
-    const signature = req.headers['x-razorpay-signature'];
-    const success = await handleWebhook(req.body, signature);
-    res.json({ success });
-  } catch (error) {
-    logger.error('Webhook error:', error);
-    res.status(500).json({ success: false });
   }
 });
 

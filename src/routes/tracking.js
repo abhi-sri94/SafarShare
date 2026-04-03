@@ -1,39 +1,45 @@
 // ── tracking.js ──────────────────────────────────────────────────────────
 const express = require('express');
-const Ride = require('../models/Ride');
-const Booking = require('../models/Booking');
+const supabase = require('../config/supabase');
 const { protect } = require('../middleware/auth');
 const { reverseGeocode } = require('../services/mapsService');
 const AppError = require('../utils/AppError');
 
 const trackingRouter = express.Router();
 
-// GET /api/tracking/:rideId — get current driver location + ride progress
+// GET /api/tracking/:rideId
 trackingRouter.get('/:rideId', protect, async (req, res, next) => {
   try {
-    const ride = await Ride.findById(req.params.rideId)
-      .select('origin destination currentLocation status departureTime estimatedArrivalTime distanceKm durationMinutes routePolyline')
-      .populate('driver', 'firstName lastName driverInfo.vehicleModel driverInfo.vehicleNumber driverRating');
+    const { data: ride } = await supabase
+      .from('rides')
+      .select('*, driver:users(*)')
+      .eq('id', req.params.rideId)
+      .single();
 
     if (!ride) return next(new AppError('Ride not found.', 404));
 
-    // Verify user is a passenger on this ride
-    const booking = await Booking.findOne({ ride: req.params.rideId, passenger: req.user._id, status: { $in: ['confirmed', 'in_progress'] } });
-    const isDriver = ride.driver._id.toString() === req.user._id.toString();
+    // Verify user is a passenger on this ride or the driver
+    const { data: booking } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('ride_id', req.params.rideId)
+      .eq('passenger_id', req.user.id)
+      .in('status', ['confirmed', 'in_progress'])
+      .maybeSingle();
+
+    const isDriver = ride.driver_id === req.user.id;
     if (!booking && !isDriver) return next(new AppError('Not authorized to track this ride.', 403));
 
-    // Calculate progress (rough estimate based on time)
+    // Progress estimate
     const now = new Date();
-    const elapsed = Math.max(0, (now - ride.departureTime) / 1000 / 60); // minutes elapsed
-    const progress = Math.min(100, Math.round((elapsed / (ride.durationMinutes || 120)) * 100));
-
-    // ETA
-    const estimatedMinutesRemaining = Math.max(0, (ride.durationMinutes || 120) - elapsed);
+    const departure = new Date(ride.departure_time);
+    const elapsed = Math.max(0, (now - departure) / 1000 / 60);
+    const duration = ride.duration_minutes || 120;
+    const progress = Math.min(100, Math.round((elapsed / duration) * 100));
 
     let currentAddress = null;
-    if (ride.currentLocation?.coordinates?.[0]) {
-      const [lng, lat] = ride.currentLocation.coordinates;
-      currentAddress = await reverseGeocode(lat, lng);
+    if (ride.current_location?.lng) {
+      currentAddress = await reverseGeocode(ride.current_location.lat, ride.current_location.lng);
     }
 
     res.json({
@@ -41,12 +47,10 @@ trackingRouter.get('/:rideId', protect, async (req, res, next) => {
       data: {
         ride,
         tracking: {
-          currentLocation: ride.currentLocation,
+          currentLocation: ride.current_location,
           currentAddress,
           progress,
-          estimatedMinutesRemaining: Math.round(estimatedMinutesRemaining),
-          distanceCoveredKm: Math.round((progress / 100) * (ride.distanceKm || 0)),
-          distanceRemainingKm: Math.round(((100 - progress) / 100) * (ride.distanceKm || 0)),
+          estimatedMinutesRemaining: Math.max(0, Math.round(duration - elapsed)),
         },
       },
     });

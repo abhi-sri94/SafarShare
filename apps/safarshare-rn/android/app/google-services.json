@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "864611748637",
+    "firebase_url": "https://safarshare-439f3-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "safarshare-439f3",
+    "storage_bucket": "safarshare-439f3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864611748637:android:1bf28c5400308305372ff4",
+        "android_client_info": {
+          "package_name": "com.safarshare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "864611748637-9ldccfg1bugqevdbb23pfu9rqjv8e0pn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6k0hNqiWYv5_Xbw6YZPGQLdWnmdQkAUs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "864611748637-9ldccfg1bugqevdbb23pfu9rqjv8e0pn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
