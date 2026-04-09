@@ -41,8 +41,10 @@ services:
         sync: true
 
   # ── 2. Static Website ─────────────────────────────────────────────────────
-  - type: static_site
+  - type: web
     name: safarshare-web
+    env: static
+    staticPublishDir: .
     routes:
       - type: rewrite
         from: /app/*
