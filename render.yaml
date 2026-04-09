@@ -44,14 +44,14 @@ services:
   - type: web
     name: safarshare-web
     env: static
-    staticPublishDir: .
+    publishDir: .
     routes:
       - type: rewrite
-        from: /app/*
-        to: /apps/safarshare-app-connected.html
+        source: /app/*
+        destination: /apps/safarshare-app-connected.html
       - type: rewrite
-        from: /admin/*
-        to: /apps/admin-login.html
+        source: /admin/*
+        destination: /apps/admin-login.html
     envVars:
       - key: SKIP_INSTALL
         value: true
