@@ -40,18 +40,3 @@ services:
       - key: CLOUDINARY_API_SECRET
         sync: true
 
-  # ── 2. Static Website ─────────────────────────────────────────────────────
-  - type: web
-    name: safarshare-web
-    env: static
-    publishDir: .
-    routes:
-      - type: rewrite
-        source: /app/*
-        destination: /apps/safarshare-app-connected.html
-      - type: rewrite
-        source: /admin/*
-        destination: /apps/admin-login.html
-    envVars:
-      - key: SKIP_INSTALL
-        value: true

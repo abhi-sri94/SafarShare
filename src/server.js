@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
 const hpp = require('hpp');
+const path = require('path');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -109,6 +110,24 @@ app.get('/health', (req, res) => {
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
   });
+});
+
+// ── Serve Static Website ───────────────────────────────────────────────────
+// Serve all files in the root folder (index.html, assets, etc.)
+app.use(express.static(path.join(__dirname, '../')));
+
+// Specific routes for the App and Admin (Matches our old Render logic)
+app.get('/app/*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../apps/safarshare-app-connected.html'));
+});
+
+app.get('/admin/*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../apps/admin-login.html'));
+});
+
+// Root route serves the landing page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 // API Routes
