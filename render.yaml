@@ -41,7 +41,7 @@ services:
         sync: true
 
   # ── 2. Static Website ─────────────────────────────────────────────────────
-  - type: static
+  - type: web
     name: safarshare-web
     env: static
     routes:
