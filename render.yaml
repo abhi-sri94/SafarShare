@@ -12,17 +12,31 @@ services:
       - key: PORT
         value: 10000
       - key: JWT_SECRET
+        value: TO_BE_FILLED
       - key: JWT_REFRESH_SECRET
+        value: TO_BE_FILLED
       - key: SUPABASE_URL
+        value: TO_BE_FILLED
       - key: SUPABASE_ANON_KEY
+        value: TO_BE_FILLED
       - key: ADMIN_SECRET_KEY
+        value: TO_BE_FILLED
       - key: GOOGLE_MAPS_API_KEY
+        value: TO_BE_FILLED
       - key: RAZORPAY_KEY_ID
+        value: TO_BE_FILLED
       - key: RAZORPAY_KEY_SECRET
+        value: TO_BE_FILLED
       - key: FIREBASE_PROJECT_ID
+        value: TO_BE_FILLED
       - key: FIREBASE_PRIVATE_KEY
+        value: TO_BE_FILLED
       - key: FIREBASE_CLIENT_ID
+        value: TO_BE_FILLED
       - key: CLOUDINARY_CLOUD_NAME
+        value: TO_BE_FILLED
       - key: CLOUDINARY_API_KEY
+        value: TO_BE_FILLED
       - key: CLOUDINARY_API_SECRET
+        value: TO_BE_FILLED
 
