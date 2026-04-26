@@ -1,9 +1,17 @@
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const Message = require('../models/Message');
-const Booking = require('../models/Booking');
 const logger = require('../utils/logger');
+
+let User = null;
+let Message = null;
+let Booking = null;
+try {
+  User = require('../models/User');
+  Message = require('../models/Message');
+  Booking = require('../models/Booking');
+} catch (err) {
+  logger.warn('Socket realtime models are unavailable; realtime features are temporarily disabled.');
+}
 
 let io;
 
@@ -37,6 +45,10 @@ const initSocket = (server) => {
     pingTimeout: 60000,
     pingInterval: 25000,
   });
+
+  if (!User || !Message || !Booking) {
+    return io;
+  }
 
   // ── Auth middleware ──────────────────────────────────────────────────────
   io.use(async (socket, next) => {
